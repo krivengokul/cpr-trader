@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPR Trader — Delta Exchange</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c0f;
+  --bg2: #111418;
+  --bg3: #181d23;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #e8eaf0;
+  --muted: #6b7280;
+  --accent: #00d4aa;
+  --accent2: #00a882;
+  --red: #ff4d4d;
+  --red2: #cc3d3d;
+  --green: #00d4aa;
+  --amber: #f59e0b;
+  --blue: #3b82f6;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Syne', sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;font-size:14px}
+a{color:var(--accent);text-decoration:none}
+
+/* NAV */
+nav{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:100}
+.nav-logo{font-size:16px;font-weight:700;color:var(--accent);letter-spacing:-0.02em}
+.nav-logo span{color:var(--text);font-weight:400}
+.nav-tabs{display:flex;gap:2px;background:var(--bg3);border-radius:8px;padding:3px}
+.nav-tab{padding:6px 14px;border-radius:6px;font-size:13px;cursor:pointer;color:var(--muted);border:none;background:none;font-family:var(--sans);transition:all 0.15s}
+.nav-tab.active{background:var(--bg2);color:var(--text);border:1px solid var(--border2)}
+.nav-tab:hover:not(.active){color:var(--text)}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;margin-right:6px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* LAYOUT */
+.page{display:none;padding:24px;max-width:1100px;margin:0 auto}
+.page.active{display:block}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px}
+.card-title{font-size:12px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:16px}
+
+/* GRID */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:700px){.grid2,.grid3,.grid4{grid-template-columns:1fr}}
+
+/* STAT CARDS */
+.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px}
+.stat-value{font-family:var(--mono);font-size:22px;font-weight:600;color:var(--text)}
+.stat-value.up{color:var(--green)}
+.stat-value.down{color:var(--red)}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:3px}
+
+/* PRICE TICKER */
+.ticker-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);margin-bottom:8px;transition:border-color 0.2s}
+.ticker-row:hover{border-color:var(--border2)}
+.ticker-pair{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text)}
+.ticker-price{font-family:var(--mono);font-size:15px;font-weight:600}
+.ticker-chg{font-family:var(--mono);font-size:12px;padding:2px 8px;border-radius:4px}
+.ticker-chg.up{background:rgba(0,212,170,0.1);color:var(--green)}
+.ticker-chg.down{background:rgba(255,77,77,0.1);color:var(--red)}
+.ticker-vol{font-size:11px;color:var(--muted);font-family:var(--mono)}
+
+/* CPR FORM */
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em}
+.field input,.field select{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:7px;font-size:13px;font-family:var(--mono);outline:none;transition:border 0.15s}
+.field input:focus,.field select:focus{border-color:var(--accent)}
+.field select option{background:var(--bg2)}
+
+/* BUTTONS */
+.btn{padding:9px 18px;border-radius:7px;font-size:13px;cursor:pointer;font-family:var(--sans);font-weight:500;border:none;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--accent);color:#000}
+.btn-primary:hover{background:var(--accent2)}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--border2)}
+.btn-red{background:rgba(255,77,77,0.1);color:var(--red);border:1px solid rgba(255,77,77,0.2)}
+.btn-red:hover{background:rgba(255,77,77,0.2)}
+
+/* CPR LEVELS OUTPUT */
+.levels-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:14px}
+.level-box{background:var(--bg3);border-radius:8px;padding:10px 12px;border-left:3px solid}
+.level-box.resistance{border-color:var(--red)}
+.level-box.cpr{border-color:var(--accent)}
+.level-box.support{border-color:#3b82f6}
+.level-box.pdhl{border-color:var(--amber)}
+.level-name{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px}
+.level-val{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--text)}
+
+/* CHECKLIST */
+.checklist{display:flex;flex-direction:column;gap:10px}
+.check-item{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;transition:border-color 0.15s}
+.check-item.checked{border-color:var(--accent);background:rgba(0,212,170,0.05)}
+.check-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;margin-top:1px;flex-shrink:0}
+.check-text{font-size:13px;color:var(--text);line-height:1.5}
+.check-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.progress-bar{height:4px;background:var(--bg3);border-radius:2px;margin:14px 0 6px;overflow:hidden}
+.progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width 0.3s}
+.score-label{font-size:12px;color:var(--muted);text-align:right}
+.score-label span{color:var(--accent);font-family:var(--mono);font-weight:600}
+
+/* JOURNAL TABLE */
+.journal-table{width:100%;border-collapse:collapse;font-size:12px}
+.journal-table th{text-align:left;padding:9px 10px;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap}
+.journal-table td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text);white-space:nowrap;vertical-align:middle}
+.journal-table tr:last-child td{border-bottom:none}
+.journal-table tr:hover td{background:rgba(255,255,255,0.02)}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;font-family:var(--mono)}
+.badge.long{background:rgba(0,212,170,0.12);color:var(--green)}
+.badge.short{background:rgba(255,77,77,0.12);color:var(--red)}
+.badge.win{background:rgba(0,212,170,0.12);color:var(--green)}
+.badge.loss{background:rgba(255,77,77,0.12);color:var(--red)}
+.badge.open{background:rgba(59,130,246,0.12);color:var(--blue)}
+.del-btn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:2px 6px;border-radius:4px;transition:color 0.15s}
+.del-btn:hover{color:var(--red)}
+.empty-state{text-align:center;padding:40px;color:var(--muted);font-size:13px}
+.empty-icon{font-size:32px;margin-bottom:8px;display:block}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:24px;width:90%;max-width:560px;max-height:90vh;overflow-y:auto}
+.modal-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1}
+.modal-close:hover{color:var(--text)}
+textarea.field-input{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:7px;font-size:13px;font-family:var(--sans);outline:none;width:100%;resize:vertical;min-height:64px;transition:border 0.15s}
+textarea.field-input:focus{border-color:var(--accent)}
+.modal-footer{display:flex;gap:8px;margin-top:20px;justify-content:flex-end}
+
+/* SECTION DIVIDER */
+.divider{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;padding:10px 0 8px;border-bottom:1px solid var(--border);margin-bottom:14px}
+
+/* BIAS TAG */
+.bias{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500;margin-left:10px}
+.bias.bearish{background:rgba(255,77,77,0.1);color:var(--red);border:1px solid rgba(255,77,77,0.2)}
+.bias.bullish{background:rgba(0,212,170,0.1);color:var(--green);border:1px solid rgba(0,212,170,0.2)}
+.bias.neutral{background:rgba(107,114,128,0.1);color:var(--muted);border:1px solid var(--border)}
+
+/* INFO BOX */
+.info-box{background:rgba(0,212,170,0.05);border:1px solid rgba(0,212,170,0.15);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--muted);line-height:1.6;margin-top:14px}
+.info-box strong{color:var(--accent)}
+
+/* SETUP GUIDE */
+.step{display:flex;gap:14px;padding:14px;background:var(--bg3);border-radius:8px;margin-bottom:8px}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#000;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-content{font-size:13px;color:var(--text);line-height:1.6}
+.step-content strong{color:var(--accent)}
+code{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:var(--mono);font-size:12px;color:var(--amber)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">CPR<span>Trader</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('prices')"><span class="live-dot"></span>Prices</button>
+    <button class="nav-tab" onclick="showPage('cpr')">CPR Levels</button>
+    <button class="nav-tab" onclick="showPage('checklist')">Checklist</button>
+    <button class="nav-tab" onclick="showPage('journal')">Journal</button>
+    <button class="nav-tab" onclick="showPage('setup')">Setup Guide</button>
+  </div>
+</nav>
+
+<!-- PRICES PAGE -->
+<div id="page-prices" class="page active">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+    <div>
+      <div style="font-size:20px;font-weight:700;color:var(--text)">Live Prices</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px" id="last-update">Connecting to Delta Exchange...</div>
+    </div>
+    <button class="btn btn-ghost" onclick="refreshPrices()">↻ Refresh</button>
+  </div>
+
+  <div class="grid4" style="margin-bottom:20px">
+    <div class="stat-card"><div class="stat-label">BTC/USDT</div><div class="stat-value" id="p-btc">—</div><div class="stat-sub" id="c-btc">—</div></div>
+    <div class="stat-card"><div class="stat-label">ETH/USDT</div><div class="stat-value" id="p-eth">—</div><div class="stat-sub" id="c-eth">—</div></div>
+    <div class="stat-card"><div class="stat-label">XAU/USDT</div><div class="stat-value" id="p-xau">—</div><div class="stat-sub" id="c-xau">—</div></div>
+    <div class="stat-card"><div class="stat-label">RIVER/USDT</div><div class="stat-value" id="p-river">—</div><div class="stat-sub" id="c-river">—</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">All Pairs — Delta Exchange Perpetuals</div>
+    <div id="ticker-list">
+      <div class="empty-state"><span class="empty-icon">📡</span>Loading prices...</div>
+    </div>
+  </div>
+
+  <div class="info-box" style="margin-top:16px">
+    <strong>Note:</strong> Prices fetched from Delta Exchange public API (no login needed). Auto-refreshes every 30 seconds. If prices show "—", Delta Exchange API may be temporarily unavailable — click Refresh or check your internet connection.
+  </div>
+</div>
+
+<!-- CPR PAGE -->
+<div id="page-cpr" class="page">
+  <div style="font-size:20px;font-weight:700;margin-bottom:6px">CPR Calculator</div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:20px">Enter yesterday's candle data to calculate today's levels</div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Yesterday's OHLC</div>
+      <div class="form-row">
+        <div class="field"><label>Pair</label><input type="text" id="cpr-pair" value="RIVERUSD" placeholder="RIVERUSD"></div>
+        <div class="field"><label>High</label><input type="number" id="cpr-h" placeholder="5.362" step="0.001"></div>
+        <div class="field"><label>Low</label><input type="number" id="cpr-l" placeholder="4.600" step="0.001"></div>
+        <div class="field"><label>Close</label><input type="number" id="cpr-c" placeholder="5.100" step="0.001"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Prev High (for PDH)</label><input type="number" id="cpr-ph" placeholder="prev day high" step="0.001"></div>
+        <div class="field"><label>Prev Low (for PDL)</label><input type="number" id="cpr-pl" placeholder="prev day low" step="0.001"></div>
+      </div>
+      <button class="btn btn-primary" onclick="calcCPR()" style="width:100%">Calculate Levels</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Today's Levels
+        <span id="bias-tag" class="bias neutral" style="display:none">Neutral</span>
+      </div>
+      <div id="cpr-output">
+        <div class="empty-state" style="padding:20px"><span style="font-size:24px;display:block;margin-bottom:6px">📐</span>Enter OHLC data and click Calculate</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px" id="cpr-analysis" style="display:none">
+    <div class="card-title">Analysis & Trade Bias</div>
+    <div id="cpr-analysis-text" style="font-size:13px;color:var(--text);line-height:1.8"></div>
+  </div>
+</div>
+
+<!-- CHECKLIST PAGE -->
+<div id="page-checklist" class="page">
+  <div style="font-size:20px;font-weight:700;margin-bottom:6px">Pre-Trade Checklist</div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:20px">Complete before every trade. Score 5/6 minimum before entering.</div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Entry Setup Validation</div>
+      <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+      <div class="score-label">Score: <span id="score-val">0</span> / 6</div>
+      <br>
+      <div class="checklist" id="checklist">
+        <label class="check-item" onclick="toggleCheck(this)">
+          <input type="checkbox" onchange="updateScore()">
+          <div><div class="check-text">Price is at a meaningful level</div><div class="check-sub">CPR (TC/BC), PDH, PDL, or S/R zone</div></div>
+        </label>
+        <label class="check-item" onclick="toggleCheck(this)">
+          <input type="checkbox" onchange="updateScore()">
+          <div><div class="check-text">15m structure agrees with direction</div><div class="check-sub">Don't trade against the higher timeframe bias</div></div>
+        </label>
+        <label class="check-item" onclick="toggleCheck(this)">
+          <input type="checkbox" onchange="updateScore()">
+          <div><div class="check-text">CPR width assessed</div><div class="check-sub">Narrow = trending day, Wide = reversal day</div></div>
+        </label>
+        <label class="check-item" onclick="toggleCheck(this)">
+          <input type="checkbox" onchange="updateScore()">
+          <div><div class="check-text">Price TESTED level and showed rejection</div><div class="check-sub">Don't enter on first touch — wait for reaction</div></div>
+        </label>
+        <label class="check-item" onclick="toggleCheck(this)">
+          <input type="checkbox" onchange="updateScore()">
+          <div><div class="check-text">5m candle BODY closed confirming move</div><div class="check-sub">Wick below ≠ confirmation. Body must close.</div></div>
+        </label>
+        <label class="check-item" onclick="toggleCheck(this)">
+          <input type="checkbox" onchange="updateScore()">
+          <div><div class="check-text">SL clearly defined beyond the level</div><div class="check-sub">Know your exact exit before entry</div></div>
+        </label>
+      </div>
+      <div style="margin-top:14px;display:flex;gap:8px">
+        <button class="btn btn-ghost" onclick="resetChecklist()" style="flex:1">Reset</button>
+        <button class="btn btn-primary" onclick="checkResult()" style="flex:1">Evaluate ↗</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Quick Trade Notes</div>
+      <div class="divider">Current Trade Setup</div>
+      <div class="field" style="margin-bottom:10px"><label>Pair</label><input type="text" id="note-pair" placeholder="RIVERUSD"></div>
+      <div class="field" style="margin-bottom:10px"><label>Direction</label>
+        <select id="note-dir"><option value="LONG">LONG</option><option value="SHORT">SHORT</option></select>
+      </div>
+      <div class="field" style="margin-bottom:10px"><label>Entry zone</label><input type="text" id="note-entry" placeholder="e.g. 4.920 – 4.937"></div>
+      <div class="field" style="margin-bottom:10px"><label>SL level</label><input type="text" id="note-sl" placeholder="e.g. 5.000"></div>
+      <div class="field" style="margin-bottom:10px"><label>Target</label><input type="text" id="note-target" placeholder="e.g. T1: 4.641, T2: 4.197"></div>
+      <div class="field" style="margin-bottom:14px"><label>Why this trade?</label>
+        <textarea class="field-input" id="note-reason" placeholder="BC breakdown + bearish CPR migration + S1 < prev S1..."></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="saveToJournal()" style="width:100%">Save to Journal ↗</button>
+    </div>
+  </div>
+</div>
+
+<!-- JOURNAL PAGE -->
+<div id="page-journal" class="page">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+    <div>
+      <div style="font-size:20px;font-weight:700">Trade Journal</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px">Track every trade. Learn from every loss.</div>
+    </div>
+    <button class="btn btn-primary" onclick="openModal()">+ New Trade</button>
+  </div>
+
+  <div class="grid4" style="margin-bottom:20px">
+    <div class="stat-card"><div class="stat-label">Total trades</div><div class="stat-value" id="j-total">0</div></div>
+    <div class="stat-card"><div class="stat-label">Win rate</div><div class="stat-value" id="j-wr">—</div></div>
+    <div class="stat-card"><div class="stat-label">Total P&L (₹)</div><div class="stat-value" id="j-pnl">₹0</div></div>
+    <div class="stat-card"><div class="stat-label">Avg R:R</div><div class="stat-value" id="j-rr">—</div></div>
+  </div>
+
+  <div class="card">
+    <div style="overflow-x:auto">
+      <table class="journal-table" id="journal-table" style="display:none">
+        <thead>
+          <tr>
+            <th>Date</th><th>Pair</th><th>Dir</th><th>Entry</th><th>SL</th><th>Exit</th><th>R:R</th><th>P&L</th><th>Checks</th><th>Notes</th><th>Result</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="journal-body"></tbody>
+      </table>
+      <div class="empty-state" id="journal-empty"><span class="empty-icon">📒</span>No trades yet. Add your first trade above.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SETUP GUIDE PAGE -->
+<div id="page-setup" class="page">
+  <div style="font-size:20px;font-weight:700;margin-bottom:6px">Free Hosting Setup Guide</div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:20px">Host this platform free on GitHub Pages in under 10 minutes</div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Step-by-step: GitHub Pages</div>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">Go to <strong><a href="https://github.com" target="_blank">github.com</a></strong> and create a free account (if you don't have one)</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">Click <strong>New Repository</strong>. Name it <code>cpr-trader</code>. Set it to <strong>Public</strong>. Click Create.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">Click <strong>uploading an existing file</strong>. Drag and drop the <code>trading-platform.html</code> file Claude gave you.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content"><strong>Rename the file</strong> to <code>index.html</code> before uploading. Then click <strong>Commit changes</strong>.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">Go to <strong>Settings → Pages</strong>. Under Source, select <strong>Deploy from branch → main → / (root)</strong>. Click Save.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">Wait 2 minutes. Your site will be live at <strong>https://yourusername.github.io/cpr-trader</strong> — bookmark it!</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Important Notes</div>
+    <div style="font-size:13px;color:var(--text);line-height:2">
+      ✅ &nbsp;This is a <strong style="color:var(--accent)">completely free</strong> website — no monthly fees ever<br>
+      ✅ &nbsp;Trade journal data is saved in your <strong style="color:var(--accent)">browser's local storage</strong> — stays on your device<br>
+      ✅ &nbsp;Live prices use <strong style="color:var(--accent)">Delta Exchange public API</strong> — no login or API key needed<br>
+      ⚠️ &nbsp;If you clear browser data, journal entries will be erased — export regularly<br>
+      ⚠️ &nbsp;Prices are for <strong style="color:var(--amber)">reference only</strong> — always confirm on Delta Exchange before trading<br>
+      📱 &nbsp;The site works on <strong style="color:var(--accent)">mobile too</strong> — open it on your phone while trading
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: New Trade -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title">
+      Log New Trade
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="divider">Trade details</div>
+    <div class="form-row">
+      <div class="field"><label>Date</label><input type="date" id="m-date"></div>
+      <div class="field"><label>Pair</label><input type="text" id="m-pair" placeholder="RIVERUSD"></div>
+      <div class="field"><label>Direction</label>
+        <select id="m-dir"><option value="LONG">LONG</option><option value="SHORT">SHORT</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>Entry ₹</label><input type="number" id="m-entry" step="0.001"></div>
+      <div class="field"><label>Stop Loss ₹</label><input type="number" id="m-sl" step="0.001"></div>
+      <div class="field"><label>Exit ₹</label><input type="number" id="m-exit" step="0.001" placeholder="leave blank if open"></div>
+      <div class="field"><label>Qty</label><input type="number" id="m-qty" placeholder="1"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>T1 ₹</label><input type="number" id="m-t1" step="0.001"></div>
+      <div class="field"><label>T2 ₹</label><input type="number" id="m-t2" step="0.001"></div>
+      <div class="field"><label>CPR type</label>
+        <select id="m-cpr"><option value="Narrow">Narrow</option><option value="Wide">Wide</option></select>
+      </div>
+      <div class="field"><label>Checklist score</label>
+        <select id="m-checks">
+          <option value="6">6/6 ✅</option><option value="5">5/6</option><option value="4">4/6</option>
+          <option value="3">3/6</option><option value="2">2/6</option><option value="1">1/6</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:4px"><label>Notes</label>
+      <textarea class="field-input" id="m-notes" placeholder="Why did you take this trade?"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="addTrade()">Log Trade</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── PAGE NAV ──
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  event.target.classList.add('active');
+  if(id==='prices') fetchPrices();
+  if(id==='journal') renderJournal();
+}
+
+// ── LIVE PRICES ──
+const PAIRS = [
+  {symbol:'BTCUSDT',label:'BTC/USDT',stat:'btc'},
+  {symbol:'ETHUSDT',label:'ETH/USDT',stat:'eth'},
+  {symbol:'XAUTUSDT',label:'XAU/USDT',stat:'xau'},
+  {symbol:'RIVERUSDT',label:'RIVER/USDT',stat:'river'},
+  {symbol:'SOLUSDT',label:'SOL/USDT',stat:null},
+  {symbol:'BNBUSDT',label:'BNB/USDT',stat:null},
+  {symbol:'LINKUSDT',label:'LINK/USDT',stat:null},
+  {symbol:'MATICUSDT',label:'MATIC/USDT',stat:null},
+];
+
+async function fetchPrices(){
+  document.getElementById('last-update').textContent = 'Fetching...';
+  try {
+    const res = await fetch('https://api.delta.exchange/v2/tickers');
+    const data = await res.json();
+    if(!data.result) throw new Error('Bad response');
+    const tickers = {};
+    data.result.forEach(t => { tickers[t.symbol] = t; });
+
+    const list = document.getElementById('ticker-list');
+    let html = '';
+    PAIRS.forEach(p => {
+      const t = tickers[p.symbol] || tickers[p.symbol.replace('USDT','_USDT')];
+      if(!t){ html += renderTicker(p.label,'—','—','—'); return; }
+      const price = parseFloat(t.close || t.last_price || 0);
+      const open = parseFloat(t.open || price);
+      const chgPct = open ? (((price-open)/open)*100).toFixed(2) : '0.00';
+      const up = parseFloat(chgPct) >= 0;
+      const vol = t.volume ? parseFloat(t.volume).toLocaleString(undefined,{maximumFractionDigits:0}) : '—';
+      if(p.stat){
+        const el = document.getElementById('p-'+p.stat);
+        const cl = document.getElementById('c-'+p.stat);
+        if(el) el.textContent = price < 1 ? price.toFixed(4) : price < 100 ? price.toFixed(2) : price.toLocaleString(undefined,{maximumFractionDigits:0});
+        if(cl){ cl.textContent = (up?'+':'')+chgPct+'%'; cl.className = 'stat-sub '+(up?'up':'down'); }
+        document.getElementById('p-'+p.stat).className = 'stat-value '+(up?'up':'down');
+      }
+      html += renderTicker(p.label, price, chgPct, vol, up);
+    });
+    list.innerHTML = html || '<div class="empty-state">No data returned from Delta Exchange API</div>';
+    document.getElementById('last-update').textContent = 'Updated: ' + new Date().toLocaleTimeString();
+  } catch(e) {
+    document.getElementById('last-update').textContent = 'Error fetching — Delta API may be down';
+    document.getElementById('ticker-list').innerHTML = '<div class="empty-state">⚠️ Could not reach Delta Exchange API.<br>Check your internet or try again.</div>';
+  }
+}
+
+function renderTicker(label, price, chgPct, vol, up){
+  const priceStr = typeof price === 'number' ? (price < 1 ? price.toFixed(4) : price < 100 ? price.toFixed(2) : price.toLocaleString(undefined,{maximumFractionDigits:0})) : price;
+  const chgStr = typeof chgPct === 'string' && chgPct !== '—' ? (parseFloat(chgPct)>=0?'+':'')+chgPct+'%' : '—';
+  const cls = up ? 'up' : 'down';
+  return `<div class="ticker-row">
+    <span class="ticker-pair">${label}</span>
+    <span class="ticker-price ${cls}" style="color:var(--${up?'green':'red'})">${priceStr}</span>
+    <span class="ticker-chg ${cls}">${chgStr}</span>
+    <span class="ticker-vol">Vol: ${vol}</span>
+  </div>`;
+}
+
+function refreshPrices(){ fetchPrices(); }
+setInterval(fetchPrices, 30000);
+fetchPrices();
+
+// ── CPR CALCULATOR ──
+function calcCPR(){
+  const h = parseFloat(document.getElementById('cpr-h').value);
+  const l = parseFloat(document.getElementById('cpr-l').value);
+  const c = parseFloat(document.getElementById('cpr-c').value);
+  const ph = parseFloat(document.getElementById('cpr-ph').value);
+  const pl = parseFloat(document.getElementById('cpr-pl').value);
+  const pair = document.getElementById('cpr-pair').value || 'PAIR';
+
+  if(!h||!l||!c){ alert('Please enter High, Low, and Close'); return; }
+
+  const P  = (h + l + c) / 3;
+  const TC = (h + l) / 2;
+  const BC = (2 * P) - TC;
+  const R1 = (2 * P) - l;
+  const R2 = P + (h - l);
+  const R3 = h + 2 * (P - l);
+  const R4 = R3 + (R2 - R1);
+  const S1 = (2 * P) - h;
+  const S2 = P - (h - l);
+  const S3 = l - 2 * (h - P);
+  const S4 = S3 - (S1 - S2);
+
+  const f = n => n.toFixed(3);
+  const cprWidth = Math.abs(TC - BC);
+  const isNarrow = cprWidth < (P * 0.005);
+
+  let bias = 'neutral';
+  let biasText = 'Neutral';
+  if(TC < (ph&&pl?(ph+pl)/2:P) && BC < (ph&&pl?(ph+pl)/2:P)){ bias='bearish'; biasText='Bearish'; }
+  else if(TC > (ph&&pl?(ph+pl)/2:P) && BC > (ph&&pl?(ph+pl)/2:P)){ bias='bullish'; biasText='Bullish'; }
+
+  const biasTag = document.getElementById('bias-tag');
+  biasTag.textContent = biasText;
+  biasTag.className = 'bias ' + bias;
+  biasTag.style.display = 'inline-flex';
+
+  document.getElementById('cpr-output').innerHTML = `
+    <div class="levels-grid">
+      <div class="level-box resistance"><div class="level-name">R4</div><div class="level-val">${f(R4)}</div></div>
+      <div class="level-box resistance"><div class="level-name">R3</div><div class="level-val">${f(R3)}</div></div>
+      <div class="level-box resistance"><div class="level-name">R2</div><div class="level-val">${f(R2)}</div></div>
+      <div class="level-box resistance"><div class="level-name">R1</div><div class="level-val">${f(R1)}</div></div>
+      <div class="level-box pdhl"><div class="level-name">PDH</div><div class="level-val">${h.toFixed(3)}</div></div>
+      <div class="level-box cpr"><div class="level-name">TC (CPR)</div><div class="level-val">${f(TC)}</div></div>
+      <div class="level-box cpr"><div class="level-name">Pivot</div><div class="level-val">${f(P)}</div></div>
+      <div class="level-box cpr"><div class="level-name">BC (CPR)</div><div class="level-val">${f(BC)}</div></div>
+      <div class="level-box pdhl"><div class="level-name">PDL</div><div class="level-val">${l.toFixed(3)}</div></div>
+      <div class="level-box support"><div class="level-name">S1</div><div class="level-val">${f(S1)}</div></div>
+      <div class="level-box support"><div class="level-name">S2</div><div class="level-val">${f(S2)}</div></div>
+      <div class="level-box support"><div class="level-name">S3</div><div class="level-val">${f(S3)}</div></div>
+      <div class="level-box support"><div class="level-name">S4</div><div class="level-val">${f(S4)}</div></div>
+    </div>`;
+
+  const analysisCard = document.getElementById('cpr-analysis');
+  analysisCard.style.display = 'block';
+  document.getElementById('cpr-analysis-text').innerHTML = `
+    <strong style="color:var(--accent)">${pair}</strong> — CPR width: <strong style="color:var(--accent)">${cprWidth.toFixed(4)}</strong> → 
+    <strong style="color:${isNarrow?'var(--green)':'var(--amber)'}"> ${isNarrow ? '✅ Narrow CPR — Trending day expected' : '⚠️ Wide CPR — Sideways/Reversal day expected'}</strong><br><br>
+    ${bias==='bearish' ? `🔴 <strong style="color:var(--red)">Bearish bias:</strong> CPR is positioned below previous pivot structure. Watch for breakdown below BC (${f(BC)}) for short entries targeting S1 (${f(S1)}) → S2 (${f(S2)}).` :
+      bias==='bullish' ? `🟢 <strong style="color:var(--green)">Bullish bias:</strong> CPR is positioned above previous pivot structure. Watch for breakout above TC (${f(TC)}) for long entries targeting R1 (${f(R1)}) → R2 (${f(R2)}).` :
+      `⚪ <strong>Neutral bias:</strong> Wait for price to show clear direction. Trade breakouts of TC (${f(TC)}) or BC (${f(BC)}) with retest confirmation.`}
+    <br><br>
+    <strong style="color:var(--muted)">Key levels to watch:</strong> TC: ${f(TC)} | BC: ${f(BC)} | R1: ${f(R1)} | S1: ${f(S1)} | PDH: ${h.toFixed(3)} | PDL: ${l.toFixed(3)}`;
+}
+
+// ── CHECKLIST ──
+function toggleCheck(label){
+  const cb = label.querySelector('input[type=checkbox]');
+  label.classList.toggle('checked', cb.checked);
+  updateScore();
+}
+function updateScore(){
+  const total = document.querySelectorAll('#checklist input:checked').length;
+  document.getElementById('score-val').textContent = total;
+  document.getElementById('progress').style.width = (total/6*100)+'%';
+}
+function resetChecklist(){
+  document.querySelectorAll('#checklist input').forEach(c=>{c.checked=false});
+  document.querySelectorAll('#checklist .check-item').forEach(l=>l.classList.remove('checked'));
+  updateScore();
+}
+function checkResult(){
+  const score = parseInt(document.getElementById('score-val').textContent);
+  if(score >= 5) alert('✅ Score '+score+'/6 — Setup looks good. Proceed with disciplined entry.');
+  else if(score >= 3) alert('⚠️ Score '+score+'/6 — Setup is weak. Consider waiting for better confirmation.');
+  else alert('🚫 Score '+score+'/6 — Do NOT take this trade. Too many conditions missing.');
+}
+function saveToJournal(){
+  const pair = document.getElementById('note-pair').value;
+  const dir = document.getElementById('note-dir').value;
+  const entry = document.getElementById('note-entry').value;
+  const sl = document.getElementById('note-sl').value;
+  const target = document.getElementById('note-target').value;
+  const reason = document.getElementById('note-reason').value;
+  const score = document.getElementById('score-val').textContent;
+  if(!pair){ alert('Please enter a pair name'); return; }
+  const trade = {
+    id: Date.now(),
+    date: new Date().toISOString().split('T')[0],
+    pair, dir,
+    entry: entry || '—', sl: sl || '—',
+    t1: target || '—', t2: '', exit: null, qty: 1,
+    rr: '—', pnl: 0, result: 'Open',
+    checks: parseInt(score)||0,
+    notes: reason || 'From checklist'
+  };
+  let trades = [];
+  try{ trades = JSON.parse(localStorage.getItem('cprtrader_trades')||'[]'); }catch(e){}
+  trades.unshift(trade);
+  try{ localStorage.setItem('cprtrader_trades', JSON.stringify(trades)); }catch(e){}
+  showPage('journal');
+  document.querySelector('.nav-tab:nth-child(4)').classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach((t,i)=>{ if(i!==3) t.classList.remove('active'); });
+  alert('Trade saved to journal!');
+}
+
+// ── JOURNAL ──
+let trades = [];
+try{ trades = JSON.parse(localStorage.getItem('cprtrader_trades')||'[]'); }catch(e){}
+
+function openModal(){
+  document.getElementById('m-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+
+function addTrade(){
+  const entry = parseFloat(document.getElementById('m-entry').value);
+  const sl = parseFloat(document.getElementById('m-sl').value);
+  const exit = parseFloat(document.getElementById('m-exit').value)||null;
+  const qty = parseFloat(document.getElementById('m-qty').value)||1;
+  const dir = document.getElementById('m-dir').value;
+  if(!entry||!sl){ alert('Please enter Entry and SL'); return; }
+  const risk = Math.abs(entry-sl);
+  let rr='—', pnl=0, result='Open';
+  if(exit && risk>0){
+    const reward = dir==='LONG'?(exit-entry):(entry-exit);
+    rr = (reward/risk).toFixed(2);
+    pnl = reward*qty;
+    result = pnl>=0?'Win':'Loss';
+  }
+  const t = {
+    id: Date.now(),
+    date: document.getElementById('m-date').value,
+    pair: document.getElementById('m-pair').value||'—',
+    dir, entry, sl,
+    t1: parseFloat(document.getElementById('m-t1').value)||null,
+    t2: parseFloat(document.getElementById('m-t2').value)||null,
+    exit, qty, rr, pnl, result,
+    checks: parseInt(document.getElementById('m-checks').value)||6,
+    notes: document.getElementById('m-notes').value||''
+  };
+  trades.unshift(t);
+  try{ localStorage.setItem('cprtrader_trades', JSON.stringify(trades)); }catch(e){}
+  closeModal();
+  renderJournal();
+}
+
+function deleteTrade(id){
+  if(!confirm('Delete this trade?')) return;
+  trades = trades.filter(t=>t.id!==id);
+  try{ localStorage.setItem('cprtrader_trades', JSON.stringify(trades)); }catch(e){}
+  renderJournal();
+}
+
+function renderJournal(){
+  const tbody = document.getElementById('journal-body');
+  const table = document.getElementById('journal-table');
+  const empty = document.getElementById('journal-empty');
+  if(!trades.length){ table.style.display='none'; empty.style.display='block'; updateStats(); return; }
+  table.style.display='table'; empty.style.display='none';
+  tbody.innerHTML = trades.map(t=>{
+    const pnlStr = t.result==='Open'?'—':(t.pnl>=0?'+₹':'-₹')+Math.abs(t.pnl).toFixed(2);
+    const pnlColor = t.pnl>0?'color:var(--green)':t.pnl<0?'color:var(--red)':'';
+    const rb = t.result==='Win'?'win':t.result==='Loss'?'loss':'open';
+    const db = t.dir==='LONG'?'long':'short';
+    return `<tr>
+      <td>${t.date}</td>
+      <td style="font-weight:600">${t.pair}</td>
+      <td><span class="badge ${db}">${t.dir}</span></td>
+      <td style="font-family:var(--mono)">${t.entry}</td>
+      <td style="font-family:var(--mono)">${t.sl}</td>
+      <td style="font-family:var(--mono)">${t.exit||'—'}</td>
+      <td style="font-family:var(--mono)">${t.rr}</td>
+      <td style="font-family:var(--mono);${pnlColor};font-weight:600">${pnlStr}</td>
+      <td>${t.checks}/6</td>
+      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;color:var(--muted)">${t.notes||'—'}</td>
+      <td><span class="badge ${rb}">${t.result}</span></td>
+      <td><button class="del-btn" onclick="deleteTrade(${t.id})">×</button></td>
+    </tr>`;
+  }).join('');
+  updateStats();
+}
+
+function updateStats(){
+  const closed = trades.filter(t=>t.result!=='Open');
+  const wins = trades.filter(t=>t.result==='Win');
+  const pnl = closed.reduce((s,t)=>s+t.pnl,0);
+  const rrs = closed.map(t=>parseFloat(t.rr)).filter(n=>!isNaN(n));
+  const avgRR = rrs.length?(rrs.reduce((a,b)=>a+b,0)/rrs.length).toFixed(2):'—';
+  const wr = closed.length?Math.round(wins.length/closed.length*100)+'%':'—';
+  document.getElementById('j-total').textContent = trades.length;
+  document.getElementById('j-wr').textContent = wr;
+  const pnlEl = document.getElementById('j-pnl');
+  pnlEl.textContent = (pnl>=0?'+₹':'-₹')+Math.abs(pnl).toFixed(2);
+  pnlEl.className = 'stat-value '+(pnl>=0?'up':'down');
+  document.getElementById('j-rr').textContent = avgRR;
+}
+
+renderJournal();
+</script>
+</body>
+</html>
