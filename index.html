@@ -8,21 +8,21 @@
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
 
   :root {
-    --bg: #0a0d12;
-    --surface: #10151e;
-    --surface2: #161c28;
-    --border: #1e2736;
-    --border2: #263042;
-    --accent: #00e5a0;
-    --accent-dim: rgba(0,229,160,0.12);
-    --accent-glow: rgba(0,229,160,0.25);
-    --red: #ff4560;
-    --red-dim: rgba(255,69,96,0.12);
-    --yellow: #ffc107;
-    --yellow-dim: rgba(255,193,7,0.12);
-    --text: #e2e8f0;
-    --text2: #8899aa;
-    --text3: #4a5a6e;
+    --bg: #f0f4f8;
+    --surface: #ffffff;
+    --surface2: #f5f7fa;
+    --border: #dde3ec;
+    --border2: #c8d0dc;
+    --accent: #00a870;
+    --accent-dim: rgba(0,168,112,0.10);
+    --accent-glow: rgba(0,168,112,0.22);
+    --red: #e03050;
+    --red-dim: rgba(224,48,80,0.10);
+    --yellow: #c47d00;
+    --yellow-dim: rgba(196,125,0,0.10);
+    --text: #1a2333;
+    --text2: #5a6a7e;
+    --text3: #99aabb;
     --mono: 'JetBrains Mono', monospace;
     --sans: 'Inter', sans-serif;
   }
@@ -534,7 +534,7 @@
     <div class="gl-grid">
       <div class="card">
         <div class="card-title">
-          🟢 Top 10 Gainers
+          🟢 Top 10 Gainers <span id="gainers-session" style="font-size:10px;color:var(--text3);font-weight:400;margin-left:6px">Loading…</span>
           <button class="refresh-btn" onclick="fetchMarket()">↻</button>
         </div>
         <table class="gl-table">
@@ -548,7 +548,7 @@
       </div>
       <div class="card">
         <div class="card-title">
-          🔴 Top 10 Losers
+          🔴 Top 10 Losers <span id="losers-session" style="font-size:10px;color:var(--text3);font-weight:400;margin-left:6px">Loading…</span>
           <button class="refresh-btn" onclick="fetchMarket()">↻</button>
         </div>
         <table class="gl-table">
@@ -920,25 +920,49 @@ async function fetchMarket() {
       }
     });
 
-    // Build gainers/losers from all perps
+    // ── 5:30 AM IST Session Baseline ──
+    // IST = UTC+5:30. We snapshot each symbol's price at the first fetch
+    // after 5:30 AM IST every day. Gainers/losers are % moves from that snapshot.
+    const nowUTC = Date.now();
+    const nowIST = new Date(nowUTC + 5.5 * 60 * 60 * 1000); // shift to IST
+    const istH = nowIST.getUTCHours();
+    const istM = nowIST.getUTCMinutes();
+    const pastSessionStart = (istH > 5) || (istH === 5 && istM >= 30);
+    const todayKey = nowIST.toISOString().slice(0, 10); // YYYY-MM-DD in IST
+
+    let baseline = {};
+    try { baseline = JSON.parse(localStorage.getItem('cpr_baseline') || '{}'); } catch(e) {}
+    if (baseline._date !== todayKey) baseline = { _date: todayKey }; // new day reset
+
+    // Build perps list
     const perps = tickers.filter(t => {
       const price = parseFloat(t.mark_price || t.close || 0);
-      const open = parseFloat(t.open || 0);
-      return price > 0 && open > 0 && t.symbol && !t.symbol.includes('C-') && !t.symbol.includes('P-');
+      return price > 0 && t.symbol && !t.symbol.includes('C-') && !t.symbol.includes('P-');
     }).map(t => {
       const price = parseFloat(t.mark_price || t.close || 0);
-      const open = parseFloat(t.open || 0);
-      const pct = (price - open) / open * 100;
+      // Snapshot at session open (5:30 AM IST) on first fetch of the day
+      if (pastSessionStart && !baseline[t.symbol]) {
+        baseline[t.symbol] = price;
+      }
+      const sessionOpen = (pastSessionStart && baseline[t.symbol]) ? baseline[t.symbol] : parseFloat(t.open || price);
+      const pct = sessionOpen > 0 ? (price - sessionOpen) / sessionOpen * 100 : 0;
       return { symbol: t.symbol, price, pct };
     });
 
+    if (pastSessionStart) {
+      try { localStorage.setItem('cpr_baseline', JSON.stringify(baseline)); } catch(e) {}
+    }
+
     perps.sort((a, b) => b.pct - a.pct);
-
     const gainers = perps.slice(0, 10);
-    const losers = [...perps].sort((a,b) => a.pct - b.pct).slice(0, 10);
+    const losers = [...perps].sort((a, b) => a.pct - b.pct).slice(0, 10);
 
-    renderGLTable('gainers-body', gainers, true);
-    renderGLTable('losers-body', losers, false);
+    const sessionLabel = pastSessionStart
+      ? `Since 5:30 AM IST`
+      : `⏳ Session starts at 5:30 AM IST`;
+
+    renderGLTable('gainers-body', gainers, true, sessionLabel);
+    renderGLTable('losers-body', losers, false, sessionLabel);
 
     // Quick market tip
     if (gainers.length > 0) {
@@ -946,9 +970,9 @@ async function fetchMarket() {
       const topLoser = losers[0];
       document.getElementById('quick-tip').className = 'ai-box';
       document.getElementById('quick-tip').innerHTML =
-        `📈 <strong>${topGainer.symbol}</strong> leads gains at <strong>+${topGainer.pct.toFixed(2)}%</strong> today. ` +
+        `📈 <strong>${topGainer.symbol}</strong> leads gains at <strong>+${topGainer.pct.toFixed(2)}%</strong> since 5:30 AM IST. ` +
         `📉 <strong>${topLoser.symbol}</strong> is the biggest loser at <strong>${topLoser.pct.toFixed(2)}%</strong>. ` +
-        `Scroll the gainers/losers for full market breadth. Use the CPR Calc tab to set your levels before trading any mover.`;
+        `Use the CPR Calc tab to set your levels before trading any mover.`;
     }
 
     document.getElementById('lastUpdate').textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
@@ -959,17 +983,20 @@ async function fetchMarket() {
   }
 }
 
-function renderGLTable(bodyId, items, isGainer) {
+function renderGLTable(bodyId, items, isGainer, sessionLabel) {
   const body = document.getElementById(bodyId);
+  const labelId = isGainer ? 'gainers-session' : 'losers-session';
+  const labelEl = document.getElementById(labelId);
+  if (labelEl && sessionLabel) labelEl.textContent = sessionLabel;
   if (!items.length) { body.innerHTML = '<tr class="loading-row"><td colspan="4">No data</td></tr>'; return; }
   body.innerHTML = items.map((item, i) => `
     <tr>
       <td class="rank">${i+1}</td>
-      <td>${item.symbol.replace('USDT','<span style="color:var(--text3)">/USDT</span>')}</td>
+      <td>${item.symbol.replace("USDT","<span style=\"color:var(--text3)\">/USDT</span>")}</td>
       <td>${formatPrice(item.price)}</td>
       <td class="${isGainer ? 'change-up' : 'change-dn'}">${isGainer ? '+' : ''}${item.pct.toFixed(2)}%</td>
     </tr>
-  `).join('');
+  `).join("");
 }
 
 function formatPrice(p) {
