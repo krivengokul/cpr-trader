@@ -3,710 +3,1275 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CPR Trader — Delta Exchange</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@400;500;700&display=swap" rel="stylesheet">
+<title>CPR Trader — Delta Exchange Dashboard</title>
 <style>
-:root {
-  --bg: #0a0c0f;
-  --bg2: #111418;
-  --bg3: #181d23;
-  --border: rgba(255,255,255,0.07);
-  --border2: rgba(255,255,255,0.12);
-  --text: #e8eaf0;
-  --muted: #6b7280;
-  --accent: #00d4aa;
-  --accent2: #00a882;
-  --red: #ff4d4d;
-  --red2: #cc3d3d;
-  --green: #00d4aa;
-  --amber: #f59e0b;
-  --blue: #3b82f6;
-  --mono: 'JetBrains Mono', monospace;
-  --sans: 'Syne', sans-serif;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;font-size:14px}
-a{color:var(--accent);text-decoration:none}
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
 
-/* NAV */
-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:100}
-.nav-logo{font-size:16px;font-weight:700;color:var(--accent);letter-spacing:-0.02em}
-.nav-logo span{color:var(--text);font-weight:400}
-.nav-tabs{display:flex;gap:2px;background:var(--bg3);border-radius:8px;padding:3px}
-.nav-tab{padding:6px 14px;border-radius:6px;font-size:13px;cursor:pointer;color:var(--muted);border:none;background:none;font-family:var(--sans);transition:all 0.15s}
-.nav-tab.active{background:var(--bg2);color:var(--text);border:1px solid var(--border2)}
-.nav-tab:hover:not(.active){color:var(--text)}
-.live-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;margin-right:6px;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+  :root {
+    --bg: #0a0d12;
+    --surface: #10151e;
+    --surface2: #161c28;
+    --border: #1e2736;
+    --border2: #263042;
+    --accent: #00e5a0;
+    --accent-dim: rgba(0,229,160,0.12);
+    --accent-glow: rgba(0,229,160,0.25);
+    --red: #ff4560;
+    --red-dim: rgba(255,69,96,0.12);
+    --yellow: #ffc107;
+    --yellow-dim: rgba(255,193,7,0.12);
+    --text: #e2e8f0;
+    --text2: #8899aa;
+    --text3: #4a5a6e;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
 
-/* LAYOUT */
-.page{display:none;padding:24px;max-width:1100px;margin:0 auto}
-.page.active{display:block}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* CARDS */
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px}
-.card-title{font-size:12px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:16px}
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-/* GRID */
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-@media(max-width:700px){.grid2,.grid3,.grid4{grid-template-columns:1fr}}
+  /* ─── TOP BAR ─── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--text2); font-weight: 400; }
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text2);
+    background: var(--surface2);
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+  }
+  .dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 1.8s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+  }
+  .nav-tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: none;
+    color: var(--text2);
+    font-family: var(--sans);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .nav-tab:hover { color: var(--text); background: var(--surface2); }
+  .nav-tab.active { color: var(--accent); background: var(--accent-dim); border-color: var(--accent-glow); }
 
-/* STAT CARDS */
-.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
-.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px}
-.stat-value{font-family:var(--mono);font-size:22px;font-weight:600;color:var(--text)}
-.stat-value.up{color:var(--green)}
-.stat-value.down{color:var(--red)}
-.stat-sub{font-size:11px;color:var(--muted);margin-top:3px}
+  /* ─── LAYOUT ─── */
+  .main { max-width: 1400px; margin: 0 auto; padding: 20px 20px; }
 
-/* PRICE TICKER */
-.ticker-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);margin-bottom:8px;transition:border-color 0.2s}
-.ticker-row:hover{border-color:var(--border2)}
-.ticker-pair{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text)}
-.ticker-price{font-family:var(--mono);font-size:15px;font-weight:600}
-.ticker-chg{font-family:var(--mono);font-size:12px;padding:2px 8px;border-radius:4px}
-.ticker-chg.up{background:rgba(0,212,170,0.1);color:var(--green)}
-.ticker-chg.down{background:rgba(255,77,77,0.1);color:var(--red)}
-.ticker-vol{font-size:11px;color:var(--muted);font-family:var(--mono)}
+  .page { display: none; }
+  .page.active { display: block; }
 
-/* CPR FORM */
-.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px}
-.field{display:flex;flex-direction:column;gap:5px}
-.field label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em}
-.field input,.field select{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:7px;font-size:13px;font-family:var(--mono);outline:none;transition:border 0.15s}
-.field input:focus,.field select:focus{border-color:var(--accent)}
-.field select option{background:var(--bg2)}
+  /* ─── GRID ─── */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .span2 { grid-column: span 2; }
+  .span3 { grid-column: span 3; }
 
-/* BUTTONS */
-.btn{padding:9px 18px;border-radius:7px;font-size:13px;cursor:pointer;font-family:var(--sans);font-weight:500;border:none;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px}
-.btn-primary{background:var(--accent);color:#000}
-.btn-primary:hover{background:var(--accent2)}
-.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
-.btn-ghost:hover{color:var(--text);border-color:var(--border2)}
-.btn-red{background:rgba(255,77,77,0.1);color:var(--red);border:1px solid rgba(255,77,77,0.2)}
-.btn-red:hover{background:rgba(255,77,77,0.2)}
+  /* ─── CARD ─── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+  }
+  .card-title {
+    font-size: 11px;
+    font-family: var(--mono);
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .card-title .refresh-btn {
+    background: none;
+    border: none;
+    color: var(--text3);
+    cursor: pointer;
+    font-size: 13px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: color 0.15s;
+  }
+  .card-title .refresh-btn:hover { color: var(--accent); }
 
-/* CPR LEVELS OUTPUT */
-.levels-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:14px}
-.level-box{background:var(--bg3);border-radius:8px;padding:10px 12px;border-left:3px solid}
-.level-box.resistance{border-color:var(--red)}
-.level-box.cpr{border-color:var(--accent)}
-.level-box.support{border-color:#3b82f6}
-.level-box.pdhl{border-color:var(--amber)}
-.level-name{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px}
-.level-val{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--text)}
+  /* ─── PRICE CARDS ─── */
+  .price-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .price-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .price-card:hover { border-color: var(--border2); }
+  .price-card.selected { border-color: var(--accent); background: var(--accent-dim); }
+  .pc-symbol { font-family: var(--mono); font-size: 12px; color: var(--text2); margin-bottom: 6px; }
+  .pc-price { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--text); }
+  .pc-change { font-family: var(--mono); font-size: 12px; margin-top: 4px; }
+  .pc-change.up { color: var(--accent); }
+  .pc-change.dn { color: var(--red); }
 
-/* CHECKLIST */
-.checklist{display:flex;flex-direction:column;gap:10px}
-.check-item{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;transition:border-color 0.15s}
-.check-item.checked{border-color:var(--accent);background:rgba(0,212,170,0.05)}
-.check-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;margin-top:1px;flex-shrink:0}
-.check-text{font-size:13px;color:var(--text);line-height:1.5}
-.check-sub{font-size:11px;color:var(--muted);margin-top:2px}
-.progress-bar{height:4px;background:var(--bg3);border-radius:2px;margin:14px 0 6px;overflow:hidden}
-.progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width 0.3s}
-.score-label{font-size:12px;color:var(--muted);text-align:right}
-.score-label span{color:var(--accent);font-family:var(--mono);font-weight:600}
+  /* ─── GAINERS / LOSERS TABLE ─── */
+  .gl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .gl-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+  .gl-table th {
+    text-align: left;
+    color: var(--text3);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 4px 8px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .gl-table th:last-child { text-align: right; }
+  .gl-table td {
+    padding: 7px 8px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .gl-table tr:last-child td { border-bottom: none; }
+  .gl-table td:last-child { text-align: right; font-weight: 600; }
+  .gl-table .rank { color: var(--text3); width: 20px; }
+  .change-up { color: var(--accent); }
+  .change-dn { color: var(--red); }
+  .loading-row td { color: var(--text3); font-size: 11px; }
 
-/* JOURNAL TABLE */
-.journal-table{width:100%;border-collapse:collapse;font-size:12px}
-.journal-table th{text-align:left;padding:9px 10px;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap}
-.journal-table td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text);white-space:nowrap;vertical-align:middle}
-.journal-table tr:last-child td{border-bottom:none}
-.journal-table tr:hover td{background:rgba(255,255,255,0.02)}
-.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;font-family:var(--mono)}
-.badge.long{background:rgba(0,212,170,0.12);color:var(--green)}
-.badge.short{background:rgba(255,77,77,0.12);color:var(--red)}
-.badge.win{background:rgba(0,212,170,0.12);color:var(--green)}
-.badge.loss{background:rgba(255,77,77,0.12);color:var(--red)}
-.badge.open{background:rgba(59,130,246,0.12);color:var(--blue)}
-.del-btn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:2px 6px;border-radius:4px;transition:color 0.15s}
-.del-btn:hover{color:var(--red)}
-.empty-state{text-align:center;padding:40px;color:var(--muted);font-size:13px}
-.empty-icon{font-size:32px;margin-bottom:8px;display:block}
+  /* ─── CPR CALCULATOR ─── */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  label { font-size: 11px; color: var(--text2); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.5px; }
+  input[type=number], input[type=text], select, textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  textarea { resize: vertical; }
+  .btn {
+    padding: 10px 20px;
+    border-radius: 7px;
+    border: none;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-primary:hover { background: #00c98e; }
+  .btn-secondary { background: var(--surface2); color: var(--text2); border: 1px solid var(--border2); }
+  .btn-secondary:hover { color: var(--text); border-color: var(--border); }
+  .btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,69,96,0.3); }
 
-/* MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
-.modal-overlay.open{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:24px;width:90%;max-width:560px;max-height:90vh;overflow-y:auto}
-.modal-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
-.modal-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1}
-.modal-close:hover{color:var(--text)}
-textarea.field-input{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:7px;font-size:13px;font-family:var(--sans);outline:none;width:100%;resize:vertical;min-height:64px;transition:border 0.15s}
-textarea.field-input:focus{border-color:var(--accent)}
-.modal-footer{display:flex;gap:8px;margin-top:20px;justify-content:flex-end}
+  /* ─── CPR RESULT ─── */
+  .cpr-result {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .level-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+  .level-box.pivot { border-color: var(--yellow); background: var(--yellow-dim); }
+  .level-box.tc { border-color: var(--accent); background: var(--accent-dim); }
+  .level-box.bc { border-color: var(--red); background: var(--red-dim); }
+  .level-label { font-size: 10px; color: var(--text2); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .level-value { font-family: var(--mono); font-size: 18px; font-weight: 700; }
+  .level-box.pivot .level-value { color: var(--yellow); }
+  .level-box.tc .level-value { color: var(--accent); }
+  .level-box.bc .level-value { color: var(--red); }
 
-/* SECTION DIVIDER */
-.divider{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;padding:10px 0 8px;border-bottom:1px solid var(--border);margin-bottom:14px}
+  .sr-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+  .sr-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+  }
+  .sr-box .level-label { font-size: 10px; }
+  .sr-box .level-value { font-size: 14px; }
+  .sr-box.r { border-color: rgba(0,229,160,0.3); }
+  .sr-box.s { border-color: rgba(255,69,96,0.3); }
+  .sr-box.r .level-value { color: var(--accent); }
+  .sr-box.s .level-value { color: var(--red); }
 
-/* BIAS TAG */
-.bias{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500;margin-left:10px}
-.bias.bearish{background:rgba(255,77,77,0.1);color:var(--red);border:1px solid rgba(255,77,77,0.2)}
-.bias.bullish{background:rgba(0,212,170,0.1);color:var(--green);border:1px solid rgba(0,212,170,0.2)}
-.bias.neutral{background:rgba(107,114,128,0.1);color:var(--muted);border:1px solid var(--border)}
+  .bias-box {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  .bias-box.bullish { background: var(--accent-dim); border: 1px solid var(--accent-glow); color: var(--accent); }
+  .bias-box.bearish { background: var(--red-dim); border: 1px solid rgba(255,69,96,0.3); color: var(--red); }
+  .bias-box.neutral { background: var(--yellow-dim); border: 1px solid rgba(255,193,7,0.3); color: var(--yellow); }
+  .bias-icon { font-size: 22px; }
+  .bias-text strong { display: block; font-size: 15px; margin-bottom: 2px; }
+  .bias-text span { font-size: 11px; color: var(--text2); }
 
-/* INFO BOX */
-.info-box{background:rgba(0,212,170,0.05);border:1px solid rgba(0,212,170,0.15);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--muted);line-height:1.6;margin-top:14px}
-.info-box strong{color:var(--accent)}
+  /* ─── CHECKLIST ─── */
+  .checklist { display: flex; flex-direction: column; gap: 10px; }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .check-item.checked { border-color: var(--accent); background: var(--accent-dim); }
+  .check-item.checked .check-box { background: var(--accent); border-color: var(--accent); }
+  .check-item.checked .check-box::after { content: '✓'; color: #000; font-size: 11px; font-weight: 700; }
+  .check-box {
+    width: 20px; height: 20px; min-width: 20px;
+    border: 2px solid var(--border2);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    transition: all 0.15s;
+    margin-top: 1px;
+  }
+  .check-label strong { display: block; font-size: 13px; color: var(--text); margin-bottom: 3px; }
+  .check-label span { font-size: 11px; color: var(--text2); }
 
-/* SETUP GUIDE */
-.step{display:flex;gap:14px;padding:14px;background:var(--bg3);border-radius:8px;margin-bottom:8px}
-.step-num{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#000;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.step-content{font-size:13px;color:var(--text);line-height:1.6}
-.step-content strong{color:var(--accent)}
-code{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:var(--mono);font-size:12px;color:var(--amber)}
+  .score-bar {
+    margin-top: 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .score-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .score-num { font-family: var(--mono); font-size: 28px; font-weight: 700; }
+  .score-num.pass { color: var(--accent); }
+  .score-num.fail { color: var(--red); }
+  .score-label { font-size: 12px; color: var(--text2); }
+  .progress-track {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--accent);
+    transition: width 0.3s ease;
+  }
+  .progress-fill.fail { background: var(--red); }
+
+  /* ─── AI TIPS ─── */
+  .ai-box {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+    min-height: 80px;
+  }
+  .ai-box.loading { color: var(--text3); font-style: italic; }
+  .ai-typing {
+    display: inline-block;
+    width: 6px; height: 14px;
+    background: var(--accent);
+    animation: blink 0.8s infinite;
+    vertical-align: middle;
+    margin-left: 2px;
+    border-radius: 1px;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  /* ─── JOURNAL ─── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+  }
+  .stat-val { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--accent); }
+  .stat-val.neg { color: var(--red); }
+  .stat-lbl { font-size: 11px; color: var(--text2); margin-top: 4px; }
+
+  .journal-table-wrap { overflow-x: auto; }
+  .journal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .journal-table th {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 2px solid var(--border2);
+    color: var(--text3);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    white-space: nowrap;
+  }
+  .journal-table td {
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    white-space: nowrap;
+  }
+  .journal-table tr:hover td { background: var(--surface2); }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .badge-win { background: var(--accent-dim); color: var(--accent); }
+  .badge-loss { background: var(--red-dim); color: var(--red); }
+  .badge-long { background: var(--accent-dim); color: var(--accent); }
+  .badge-short { background: var(--red-dim); color: var(--red); }
+
+  /* ─── MODAL ─── */
+  .modal-bg {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    padding: 24px;
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--text);
+  }
+  .modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+
+  /* ─── MISC ─── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .mb-4 { margin-bottom: 4px; }
+  .mb-8 { margin-bottom: 8px; }
+  .mb-16 { margin-bottom: 16px; }
+  .mb-20 { margin-bottom: 20px; }
+  .empty-state {
+    text-align: center;
+    padding: 32px;
+    color: var(--text3);
+    font-size: 13px;
+  }
+  .tag-narrow { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(255,193,7,0.3); padding: 2px 8px; border-radius: 4px; font-size: 10px; font-family: var(--mono); font-weight: 600; }
+  .tag-wide { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; font-size: 10px; font-family: var(--mono); font-weight: 600; }
+
+  @media(max-width:900px) {
+    .price-grid { grid-template-columns: repeat(2,1fr); }
+    .grid2, .gl-grid { grid-template-columns: 1fr; }
+    .grid3 { grid-template-columns: 1fr; }
+    .span2, .span3 { grid-column: span 1; }
+    .cpr-result { grid-template-columns: repeat(3,1fr); }
+    .sr-grid { grid-template-columns: repeat(2,1fr); }
+    .stats-row { grid-template-columns: repeat(2,1fr); }
+    .nav-tabs { display: none; }
+  }
 </style>
 </head>
 <body>
 
-<nav>
-  <div class="nav-logo">CPR<span>Trader</span></div>
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showPage('prices')"><span class="live-dot"></span>Prices</button>
-    <button class="nav-tab" onclick="showPage('cpr')">CPR Levels</button>
-    <button class="nav-tab" onclick="showPage('checklist')">Checklist</button>
-    <button class="nav-tab" onclick="showPage('journal')">Journal</button>
-    <button class="nav-tab" onclick="showPage('setup')">Setup Guide</button>
-  </div>
-</nav>
-
-<!-- PRICES PAGE -->
-<div id="page-prices" class="page active">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
-    <div>
-      <div style="font-size:20px;font-weight:700;color:var(--text)">Live Prices</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:2px" id="last-update">Connecting to Delta Exchange...</div>
-    </div>
-    <button class="btn btn-ghost" onclick="refreshPrices()">↻ Refresh</button>
-  </div>
-
-  <div class="grid4" style="margin-bottom:20px">
-    <div class="stat-card"><div class="stat-label">BTC/USDT</div><div class="stat-value" id="p-btc">—</div><div class="stat-sub" id="c-btc">—</div></div>
-    <div class="stat-card"><div class="stat-label">ETH/USDT</div><div class="stat-value" id="p-eth">—</div><div class="stat-sub" id="c-eth">—</div></div>
-    <div class="stat-card"><div class="stat-label">XAU/USDT</div><div class="stat-value" id="p-xau">—</div><div class="stat-sub" id="c-xau">—</div></div>
-    <div class="stat-card"><div class="stat-label">RIVER/USDT</div><div class="stat-value" id="p-river">—</div><div class="stat-sub" id="c-river">—</div></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">All Pairs — Delta Exchange Perpetuals</div>
-    <div id="ticker-list">
-      <div class="empty-state"><span class="empty-icon">📡</span>Loading prices...</div>
-    </div>
-  </div>
-
-  <div class="info-box" style="margin-top:16px">
-    <strong>Note:</strong> Prices fetched from Delta Exchange public API (no login needed). Auto-refreshes every 30 seconds. If prices show "—", Delta Exchange API may be temporarily unavailable — click Refresh or check your internet connection.
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">CPR<span>Trader</span></div>
+  <nav class="nav-tabs">
+    <button class="nav-tab active" onclick="switchPage('dashboard')">Dashboard</button>
+    <button class="nav-tab" onclick="switchPage('cpr')">CPR Calc</button>
+    <button class="nav-tab" onclick="switchPage('checklist')">Checklist</button>
+    <button class="nav-tab" onclick="switchPage('journal')">Journal</button>
+  </nav>
+  <div class="live-badge">
+    <div class="dot"></div>
+    <span id="lastUpdate">Connecting…</span>
   </div>
 </div>
 
-<!-- CPR PAGE -->
-<div id="page-cpr" class="page">
-  <div style="font-size:20px;font-weight:700;margin-bottom:6px">CPR Calculator</div>
-  <div style="font-size:12px;color:var(--muted);margin-bottom:20px">Enter yesterday's candle data to calculate today's levels</div>
+<div class="main">
 
-  <div class="grid2">
+  <!-- ═══════ PAGE: DASHBOARD ═══════ -->
+  <div id="page-dashboard" class="page active">
+
+    <!-- Watched Pairs -->
+    <div class="price-grid" id="watchGrid">
+      <div class="price-card selected" id="pc-BTCUSDT">
+        <div class="pc-symbol">BTC/USDT</div>
+        <div class="pc-price" id="px-BTCUSDT">—</div>
+        <div class="pc-change" id="ch-BTCUSDT">—</div>
+      </div>
+      <div class="price-card" id="pc-ETHUSDT">
+        <div class="pc-symbol">ETH/USDT</div>
+        <div class="pc-price" id="px-ETHUSDT">—</div>
+        <div class="pc-change" id="ch-ETHUSDT">—</div>
+      </div>
+      <div class="price-card" id="pc-XAUTUSDT">
+        <div class="pc-symbol">XAU/USDT</div>
+        <div class="pc-price" id="px-XAUTUSDT">—</div>
+        <div class="pc-change" id="ch-XAUTUSDT">—</div>
+      </div>
+      <div class="price-card" id="pc-SOLUSDT">
+        <div class="pc-symbol">SOL/USDT</div>
+        <div class="pc-price" id="px-SOLUSDT">—</div>
+        <div class="pc-change" id="ch-SOLUSDT">—</div>
+      </div>
+    </div>
+
+    <!-- Gainers / Losers -->
+    <div class="gl-grid">
+      <div class="card">
+        <div class="card-title">
+          🟢 Top 10 Gainers
+          <button class="refresh-btn" onclick="fetchMarket()">↻</button>
+        </div>
+        <table class="gl-table">
+          <thead>
+            <tr><th>#</th><th>Symbol</th><th>Price</th><th>24h %</th></tr>
+          </thead>
+          <tbody id="gainers-body">
+            <tr class="loading-row"><td colspan="4">Loading market data…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          🔴 Top 10 Losers
+          <button class="refresh-btn" onclick="fetchMarket()">↻</button>
+        </div>
+        <table class="gl-table">
+          <thead>
+            <tr><th>#</th><th>Symbol</th><th>Price</th><th>24h %</th></tr>
+          </thead>
+          <tbody id="losers-body">
+            <tr class="loading-row"><td colspan="4">Loading market data…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Quick AI Tip -->
     <div class="card">
-      <div class="card-title">Yesterday's OHLC</div>
-      <div class="form-row">
-        <div class="field"><label>Pair</label><input type="text" id="cpr-pair" value="RIVERUSD" placeholder="RIVERUSD"></div>
-        <div class="field"><label>High</label><input type="number" id="cpr-h" placeholder="5.362" step="0.001"></div>
-        <div class="field"><label>Low</label><input type="number" id="cpr-l" placeholder="4.600" step="0.001"></div>
-        <div class="field"><label>Close</label><input type="number" id="cpr-c" placeholder="5.100" step="0.001"></div>
+      <div class="card-title">⚡ Quick Market Insight (AI)</div>
+      <div id="quick-tip" class="ai-box loading">Ask about your trade setup in the Checklist tab to get AI analysis.</div>
+    </div>
+
+  </div>
+
+  <!-- ═══════ PAGE: CPR CALC ═══════ -->
+  <div id="page-cpr" class="page">
+    <div class="grid2">
+
+      <div class="card">
+        <div class="card-title">CPR Calculator</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Pair</label>
+            <select id="calc-pair">
+              <option value="BTCUSDT">BTC/USDT</option>
+              <option value="ETHUSDT">ETH/USDT</option>
+              <option value="XAUTUSDT">XAU/USDT</option>
+              <option value="SOLUSDT">SOL/USDT</option>
+              <option value="BNBUSDT">BNB/USDT</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Yesterday High</label>
+            <input type="number" id="calc-high" placeholder="0.00" step="0.01">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Yesterday Low</label>
+            <input type="number" id="calc-low" placeholder="0.00" step="0.01">
+          </div>
+          <div class="form-group">
+            <label>Yesterday Close</label>
+            <input type="number" id="calc-close" placeholder="0.00" step="0.01">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Prev-Prev High (for PDH)</label>
+            <input type="number" id="calc-pdh" placeholder="0.00" step="0.01">
+          </div>
+          <div class="form-group">
+            <label>Prev-Prev Low (for PDL)</label>
+            <input type="number" id="calc-pdl" placeholder="0.00" step="0.01">
+          </div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:4px" onclick="calcCPR()">Calculate Levels</button>
+
+        <div id="calc-result" style="display:none">
+          <div class="cpr-result">
+            <div class="level-box tc"><div class="level-label">TC (Top)</div><div class="level-value" id="res-tc">—</div></div>
+            <div class="level-box pivot"><div class="level-label">Pivot</div><div class="level-value" id="res-pivot">—</div></div>
+            <div class="level-box bc"><div class="level-label">BC (Bottom)</div><div class="level-value" id="res-bc">—</div></div>
+          </div>
+          <div class="sr-grid">
+            <div class="level-box r"><div class="level-label">R2</div><div class="level-value" id="res-r2">—</div></div>
+            <div class="level-box r"><div class="level-label">R1</div><div class="level-value" id="res-r1">—</div></div>
+            <div class="level-box s"><div class="level-label">S1</div><div class="level-value" id="res-s1">—</div></div>
+            <div class="level-box s"><div class="level-label">S2</div><div class="level-value" id="res-s2">—</div></div>
+          </div>
+          <div class="sr-grid" style="margin-top:10px;grid-template-columns:1fr 1fr">
+            <div class="level-box r"><div class="level-label">PDH</div><div class="level-value" id="res-pdh">—</div></div>
+            <div class="level-box s"><div class="level-label">PDL</div><div class="level-value" id="res-pdl">—</div></div>
+          </div>
+          <div id="bias-display" class="bias-box neutral" style="margin-top:16px">
+            <div class="bias-icon">⚖️</div>
+            <div class="bias-text"><strong>Neutral</strong><span>Enter OHLC to see bias</span></div>
+          </div>
+          <div style="margin-top:12px">
+            <div id="cpr-width-tag"></div>
+          </div>
+        </div>
       </div>
-      <div class="form-row">
-        <div class="field"><label>Prev High (for PDH)</label><input type="number" id="cpr-ph" placeholder="prev day high" step="0.001"></div>
-        <div class="field"><label>Prev Low (for PDL)</label><input type="number" id="cpr-pl" placeholder="prev day low" step="0.001"></div>
+
+      <div class="card">
+        <div class="card-title">AI Trade Analysis</div>
+        <div class="form-group mb-16">
+          <label>Current Market Price</label>
+          <input type="number" id="ai-cmp" placeholder="Enter current price" step="0.01">
+        </div>
+        <div class="form-group mb-16">
+          <label>Your Observation</label>
+          <textarea id="ai-obs" rows="4" placeholder="e.g. Price rejected BC twice on 5m, narrow CPR, above yesterday's close, looking for long above TC..."></textarea>
+        </div>
+        <button class="btn btn-primary" style="width:100%" onclick="getAIAnalysis()">Get AI Analysis ↗</button>
+        <div id="ai-result" class="ai-box" style="margin-top:16px;display:none"></div>
       </div>
-      <button class="btn btn-primary" onclick="calcCPR()" style="width:100%">Calculate Levels</button>
+
+    </div>
+  </div>
+
+  <!-- ═══════ PAGE: CHECKLIST ═══════ -->
+  <div id="page-checklist" class="page">
+    <div class="grid2">
+
+      <div class="card">
+        <div class="card-title">Pre-Trade Checklist</div>
+        <div class="checklist" id="checklist">
+          <div class="check-item" onclick="toggleCheck(this, 0)">
+            <div class="check-box"></div>
+            <div class="check-label">
+              <strong>Price at a meaningful level</strong>
+              <span>CPR (TC/BC), PDH, PDL, or key S/R zone — not mid-air</span>
+            </div>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this, 1)">
+            <div class="check-box"></div>
+            <div class="check-label">
+              <strong>15m structure agrees with direction</strong>
+              <span>Don't trade against the higher timeframe bias</span>
+            </div>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this, 2)">
+            <div class="check-box"></div>
+            <div class="check-label">
+              <strong>CPR width assessed</strong>
+              <span>Narrow = trending day, Wide = reversal day — trade accordingly</span>
+            </div>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this, 3)">
+            <div class="check-box"></div>
+            <div class="check-label">
+              <strong>Price TESTED level and showed rejection</strong>
+              <span>Don't enter on first touch — wait for a reaction/wick</span>
+            </div>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this, 4)">
+            <div class="check-box"></div>
+            <div class="check-label">
+              <strong>5m candle BODY closed confirming move</strong>
+              <span>⚠️ Wick below/above BC ≠ confirmation. Body must close beyond level</span>
+            </div>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this, 5)">
+            <div class="check-box"></div>
+            <div class="check-label">
+              <strong>SL clearly defined beyond the level</strong>
+              <span>Know your exact exit before entry. No SL = no trade</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="score-bar" style="margin-top:16px">
+          <div class="score-display">
+            <div>
+              <div class="score-num fail" id="score-num">0 / 6</div>
+              <div class="score-label" id="score-label">Need minimum 5/6 to trade</div>
+            </div>
+            <button class="btn btn-secondary" onclick="resetChecklist()">Reset</button>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill fail" id="score-bar" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Trade Setup Notes</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Pair</label>
+            <select id="setup-pair">
+              <option>BTCUSDT</option><option>ETHUSDT</option><option>XAUTUSDT</option><option>SOLUSDT</option><option>BNBUSDT</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Direction</label>
+            <select id="setup-dir">
+              <option value="LONG">LONG</option>
+              <option value="SHORT">SHORT</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Entry Zone</label>
+            <input type="number" id="setup-entry" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label>Stop Loss</label>
+            <input type="number" id="setup-sl" placeholder="0.00">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Target 1</label>
+            <input type="number" id="setup-t1" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label>Target 2</label>
+            <input type="number" id="setup-t2" placeholder="0.00">
+          </div>
+        </div>
+        <div class="form-group mb-16">
+          <label>Why this trade?</label>
+          <textarea id="setup-why" rows="3" placeholder="CPR position, structure, confluence..."></textarea>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-primary" style="flex:1" onclick="getChecklistAI()">AI Review ↗</button>
+          <button class="btn btn-secondary" style="flex:1" onclick="saveToJournal()">Save to Journal</button>
+        </div>
+        <div id="checklist-ai" class="ai-box" style="margin-top:16px;display:none"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════ PAGE: JOURNAL ═══════ -->
+  <div id="page-journal" class="page">
+
+    <div class="stats-row" id="journal-stats">
+      <div class="stat-card"><div class="stat-val" id="j-total">0</div><div class="stat-lbl">Total Trades</div></div>
+      <div class="stat-card"><div class="stat-val" id="j-winrate">—</div><div class="stat-lbl">Win Rate</div></div>
+      <div class="stat-card"><div class="stat-val" id="j-pnl">₹0</div><div class="stat-lbl">Total P&L</div></div>
+      <div class="stat-card"><div class="stat-val" id="j-rr">—</div><div class="stat-lbl">Avg R:R</div></div>
     </div>
 
     <div class="card">
-      <div class="card-title">Today's Levels
-        <span id="bias-tag" class="bias neutral" style="display:none">Neutral</span>
+      <div class="section-header">
+        <div class="section-title">Trade Journal</div>
+        <button class="btn btn-primary" onclick="openTradeModal()">+ New Trade</button>
       </div>
-      <div id="cpr-output">
-        <div class="empty-state" style="padding:20px"><span style="font-size:24px;display:block;margin-bottom:6px">📐</span>Enter OHLC data and click Calculate</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:16px" id="cpr-analysis" style="display:none">
-    <div class="card-title">Analysis & Trade Bias</div>
-    <div id="cpr-analysis-text" style="font-size:13px;color:var(--text);line-height:1.8"></div>
-  </div>
-</div>
-
-<!-- CHECKLIST PAGE -->
-<div id="page-checklist" class="page">
-  <div style="font-size:20px;font-weight:700;margin-bottom:6px">Pre-Trade Checklist</div>
-  <div style="font-size:12px;color:var(--muted);margin-bottom:20px">Complete before every trade. Score 5/6 minimum before entering.</div>
-
-  <div class="grid2">
-    <div class="card">
-      <div class="card-title">Entry Setup Validation</div>
-      <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
-      <div class="score-label">Score: <span id="score-val">0</span> / 6</div>
-      <br>
-      <div class="checklist" id="checklist">
-        <label class="check-item" onclick="toggleCheck(this)">
-          <input type="checkbox" onchange="updateScore()">
-          <div><div class="check-text">Price is at a meaningful level</div><div class="check-sub">CPR (TC/BC), PDH, PDL, or S/R zone</div></div>
-        </label>
-        <label class="check-item" onclick="toggleCheck(this)">
-          <input type="checkbox" onchange="updateScore()">
-          <div><div class="check-text">15m structure agrees with direction</div><div class="check-sub">Don't trade against the higher timeframe bias</div></div>
-        </label>
-        <label class="check-item" onclick="toggleCheck(this)">
-          <input type="checkbox" onchange="updateScore()">
-          <div><div class="check-text">CPR width assessed</div><div class="check-sub">Narrow = trending day, Wide = reversal day</div></div>
-        </label>
-        <label class="check-item" onclick="toggleCheck(this)">
-          <input type="checkbox" onchange="updateScore()">
-          <div><div class="check-text">Price TESTED level and showed rejection</div><div class="check-sub">Don't enter on first touch — wait for reaction</div></div>
-        </label>
-        <label class="check-item" onclick="toggleCheck(this)">
-          <input type="checkbox" onchange="updateScore()">
-          <div><div class="check-text">5m candle BODY closed confirming move</div><div class="check-sub">Wick below ≠ confirmation. Body must close.</div></div>
-        </label>
-        <label class="check-item" onclick="toggleCheck(this)">
-          <input type="checkbox" onchange="updateScore()">
-          <div><div class="check-text">SL clearly defined beyond the level</div><div class="check-sub">Know your exact exit before entry</div></div>
-        </label>
-      </div>
-      <div style="margin-top:14px;display:flex;gap:8px">
-        <button class="btn btn-ghost" onclick="resetChecklist()" style="flex:1">Reset</button>
-        <button class="btn btn-primary" onclick="checkResult()" style="flex:1">Evaluate ↗</button>
+      <div class="journal-table-wrap">
+        <table class="journal-table">
+          <thead>
+            <tr>
+              <th>Date</th><th>Pair</th><th>Dir</th><th>Entry</th><th>SL</th><th>Exit</th><th>Qty</th><th>P&L</th><th>R:R</th><th>Score</th><th>Result</th><th>Notes</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="journal-body">
+            <tr><td colspan="13"><div class="empty-state">No trades yet. Add your first trade above.</div></td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
-
-    <div class="card">
-      <div class="card-title">Quick Trade Notes</div>
-      <div class="divider">Current Trade Setup</div>
-      <div class="field" style="margin-bottom:10px"><label>Pair</label><input type="text" id="note-pair" placeholder="RIVERUSD"></div>
-      <div class="field" style="margin-bottom:10px"><label>Direction</label>
-        <select id="note-dir"><option value="LONG">LONG</option><option value="SHORT">SHORT</option></select>
-      </div>
-      <div class="field" style="margin-bottom:10px"><label>Entry zone</label><input type="text" id="note-entry" placeholder="e.g. 4.920 – 4.937"></div>
-      <div class="field" style="margin-bottom:10px"><label>SL level</label><input type="text" id="note-sl" placeholder="e.g. 5.000"></div>
-      <div class="field" style="margin-bottom:10px"><label>Target</label><input type="text" id="note-target" placeholder="e.g. T1: 4.641, T2: 4.197"></div>
-      <div class="field" style="margin-bottom:14px"><label>Why this trade?</label>
-        <textarea class="field-input" id="note-reason" placeholder="BC breakdown + bearish CPR migration + S1 < prev S1..."></textarea>
-      </div>
-      <button class="btn btn-primary" onclick="saveToJournal()" style="width:100%">Save to Journal ↗</button>
-    </div>
-  </div>
-</div>
-
-<!-- JOURNAL PAGE -->
-<div id="page-journal" class="page">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
-    <div>
-      <div style="font-size:20px;font-weight:700">Trade Journal</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:2px">Track every trade. Learn from every loss.</div>
-    </div>
-    <button class="btn btn-primary" onclick="openModal()">+ New Trade</button>
   </div>
 
-  <div class="grid4" style="margin-bottom:20px">
-    <div class="stat-card"><div class="stat-label">Total trades</div><div class="stat-value" id="j-total">0</div></div>
-    <div class="stat-card"><div class="stat-label">Win rate</div><div class="stat-value" id="j-wr">—</div></div>
-    <div class="stat-card"><div class="stat-label">Total P&L (₹)</div><div class="stat-value" id="j-pnl">₹0</div></div>
-    <div class="stat-card"><div class="stat-label">Avg R:R</div><div class="stat-value" id="j-rr">—</div></div>
-  </div>
+</div><!-- /main -->
 
-  <div class="card">
-    <div style="overflow-x:auto">
-      <table class="journal-table" id="journal-table" style="display:none">
-        <thead>
-          <tr>
-            <th>Date</th><th>Pair</th><th>Dir</th><th>Entry</th><th>SL</th><th>Exit</th><th>R:R</th><th>P&L</th><th>Checks</th><th>Notes</th><th>Result</th><th></th>
-          </tr>
-        </thead>
-        <tbody id="journal-body"></tbody>
-      </table>
-      <div class="empty-state" id="journal-empty"><span class="empty-icon">📒</span>No trades yet. Add your first trade above.</div>
-    </div>
-  </div>
-</div>
-
-<!-- SETUP GUIDE PAGE -->
-<div id="page-setup" class="page">
-  <div style="font-size:20px;font-weight:700;margin-bottom:6px">Free Hosting Setup Guide</div>
-  <div style="font-size:12px;color:var(--muted);margin-bottom:20px">Host this platform free on GitHub Pages in under 10 minutes</div>
-
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-title">Step-by-step: GitHub Pages</div>
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-content">Go to <strong><a href="https://github.com" target="_blank">github.com</a></strong> and create a free account (if you don't have one)</div>
-    </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-content">Click <strong>New Repository</strong>. Name it <code>cpr-trader</code>. Set it to <strong>Public</strong>. Click Create.</div>
-    </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-content">Click <strong>uploading an existing file</strong>. Drag and drop the <code>trading-platform.html</code> file Claude gave you.</div>
-    </div>
-    <div class="step">
-      <div class="step-num">4</div>
-      <div class="step-content"><strong>Rename the file</strong> to <code>index.html</code> before uploading. Then click <strong>Commit changes</strong>.</div>
-    </div>
-    <div class="step">
-      <div class="step-num">5</div>
-      <div class="step-content">Go to <strong>Settings → Pages</strong>. Under Source, select <strong>Deploy from branch → main → / (root)</strong>. Click Save.</div>
-    </div>
-    <div class="step">
-      <div class="step-num">6</div>
-      <div class="step-content">Wait 2 minutes. Your site will be live at <strong>https://yourusername.github.io/cpr-trader</strong> — bookmark it!</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Important Notes</div>
-    <div style="font-size:13px;color:var(--text);line-height:2">
-      ✅ &nbsp;This is a <strong style="color:var(--accent)">completely free</strong> website — no monthly fees ever<br>
-      ✅ &nbsp;Trade journal data is saved in your <strong style="color:var(--accent)">browser's local storage</strong> — stays on your device<br>
-      ✅ &nbsp;Live prices use <strong style="color:var(--accent)">Delta Exchange public API</strong> — no login or API key needed<br>
-      ⚠️ &nbsp;If you clear browser data, journal entries will be erased — export regularly<br>
-      ⚠️ &nbsp;Prices are for <strong style="color:var(--amber)">reference only</strong> — always confirm on Delta Exchange before trading<br>
-      📱 &nbsp;The site works on <strong style="color:var(--accent)">mobile too</strong> — open it on your phone while trading
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: New Trade -->
-<div class="modal-overlay" id="modal">
+<!-- ═══════ TRADE MODAL ═══════ -->
+<div class="modal-bg" id="trade-modal">
   <div class="modal">
-    <div class="modal-title">
-      Log New Trade
-      <button class="modal-close" onclick="closeModal()">×</button>
-    </div>
-    <div class="divider">Trade details</div>
+    <div class="modal-title">Log New Trade</div>
     <div class="form-row">
-      <div class="field"><label>Date</label><input type="date" id="m-date"></div>
-      <div class="field"><label>Pair</label><input type="text" id="m-pair" placeholder="RIVERUSD"></div>
-      <div class="field"><label>Direction</label>
-        <select id="m-dir"><option value="LONG">LONG</option><option value="SHORT">SHORT</option></select>
+      <div class="form-group">
+        <label>Date</label>
+        <input type="text" id="t-date" placeholder="DD/MM/YYYY">
       </div>
-    </div>
-    <div class="form-row">
-      <div class="field"><label>Entry ₹</label><input type="number" id="m-entry" step="0.001"></div>
-      <div class="field"><label>Stop Loss ₹</label><input type="number" id="m-sl" step="0.001"></div>
-      <div class="field"><label>Exit ₹</label><input type="number" id="m-exit" step="0.001" placeholder="leave blank if open"></div>
-      <div class="field"><label>Qty</label><input type="number" id="m-qty" placeholder="1"></div>
-    </div>
-    <div class="form-row">
-      <div class="field"><label>T1 ₹</label><input type="number" id="m-t1" step="0.001"></div>
-      <div class="field"><label>T2 ₹</label><input type="number" id="m-t2" step="0.001"></div>
-      <div class="field"><label>CPR type</label>
-        <select id="m-cpr"><option value="Narrow">Narrow</option><option value="Wide">Wide</option></select>
-      </div>
-      <div class="field"><label>Checklist score</label>
-        <select id="m-checks">
-          <option value="6">6/6 ✅</option><option value="5">5/6</option><option value="4">4/6</option>
-          <option value="3">3/6</option><option value="2">2/6</option><option value="1">1/6</option>
+      <div class="form-group">
+        <label>Pair</label>
+        <select id="t-pair">
+          <option>BTCUSDT</option><option>ETHUSDT</option><option>XAUTUSDT</option><option>SOLUSDT</option><option>BNBUSDT</option>
         </select>
       </div>
     </div>
-    <div class="field" style="margin-bottom:4px"><label>Notes</label>
-      <textarea class="field-input" id="m-notes" placeholder="Why did you take this trade?"></textarea>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Direction</label>
+        <select id="t-dir"><option value="LONG">LONG</option><option value="SHORT">SHORT</option></select>
+      </div>
+      <div class="form-group">
+        <label>Qty</label>
+        <input type="number" id="t-qty" placeholder="0">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Entry</label>
+        <input type="number" id="t-entry" step="0.01" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label>Stop Loss</label>
+        <input type="number" id="t-sl" step="0.01" placeholder="0.00">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Exit Price</label>
+        <input type="number" id="t-exit" step="0.01" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label>Checklist Score</label>
+        <select id="t-score">
+          <option value="6">6/6 ✅</option>
+          <option value="5">5/6</option>
+          <option value="4">4/6</option>
+          <option value="3">3/6</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group mb-16">
+      <label>Notes</label>
+      <textarea id="t-notes" rows="3" placeholder="What worked? What went wrong?"></textarea>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="addTrade()">Log Trade</button>
+      <button class="btn btn-secondary" onclick="closeTradeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTrade()">Save Trade</button>
     </div>
   </div>
 </div>
 
 <script>
-// ── PAGE NAV ──
-function showPage(id){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
-  event.target.classList.add('active');
-  if(id==='prices') fetchPrices();
-  if(id==='journal') renderJournal();
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let trades = JSON.parse(localStorage.getItem('cpr_trades') || '[]');
+let checkScore = 0;
+let calcLevels = null;
+
+// ═══════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════
+function switchPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const tabs = document.querySelectorAll('.nav-tab');
+  const order = ['dashboard','cpr','checklist','journal'];
+  tabs[order.indexOf(page)]?.classList.add('active');
 }
 
-// ── LIVE PRICES ──
-const PAIRS = [
-  {symbol:'BTCUSDT',label:'BTC/USDT',stat:'btc'},
-  {symbol:'ETHUSDT',label:'ETH/USDT',stat:'eth'},
-  {symbol:'XAUTUSDT',label:'XAU/USDT',stat:'xau'},
-  {symbol:'RIVERUSDT',label:'RIVER/USDT',stat:'river'},
-  {symbol:'SOLUSDT',label:'SOL/USDT',stat:null},
-  {symbol:'BNBUSDT',label:'BNB/USDT',stat:null},
-  {symbol:'LINKUSDT',label:'LINK/USDT',stat:null},
-  {symbol:'MATICUSDT',label:'MATIC/USDT',stat:null},
-];
+// ═══════════════════════════════════════════
+// DELTA EXCHANGE MARKET DATA
+// ═══════════════════════════════════════════
+const WATCHED = ['BTCUSDT','ETHUSDT','XAUTUSDT','SOLUSDT'];
+const DELTA_SYMBOL_MAP = {
+  'BTCUSDT': 'BTCUSDT',
+  'ETHUSDT': 'ETHUSDT',
+  'XAUTUSDT': 'XAUTUSDT',
+  'SOLUSDT': 'SOLUSDT'
+};
 
-async function fetchPrices(){
-  document.getElementById('last-update').textContent = 'Fetching...';
+async function fetchMarket() {
   try {
-    const res = await fetch('https://api.delta.exchange/v2/tickers');
+    const res = await fetch('https://api.india.delta.exchange/v2/tickers?contract_types=perpetual_futures');
     const data = await res.json();
-    if(!data.result) throw new Error('Bad response');
-    const tickers = {};
-    data.result.forEach(t => { tickers[t.symbol] = t; });
+    const tickers = data.result || [];
 
-    const list = document.getElementById('ticker-list');
-    let html = '';
-    PAIRS.forEach(p => {
-      const t = tickers[p.symbol] || tickers[p.symbol.replace('USDT','_USDT')];
-      if(!t){ html += renderTicker(p.label,'—','—','—'); return; }
-      const price = parseFloat(t.close || t.last_price || 0);
-      const open = parseFloat(t.open || price);
-      const chgPct = open ? (((price-open)/open)*100).toFixed(2) : '0.00';
-      const up = parseFloat(chgPct) >= 0;
-      const vol = t.volume ? parseFloat(t.volume).toLocaleString(undefined,{maximumFractionDigits:0}) : '—';
-      if(p.stat){
-        const el = document.getElementById('p-'+p.stat);
-        const cl = document.getElementById('c-'+p.stat);
-        if(el) el.textContent = price < 1 ? price.toFixed(4) : price < 100 ? price.toFixed(2) : price.toLocaleString(undefined,{maximumFractionDigits:0});
-        if(cl){ cl.textContent = (up?'+':'')+chgPct+'%'; cl.className = 'stat-sub '+(up?'up':'down'); }
-        document.getElementById('p-'+p.stat).className = 'stat-value '+(up?'up':'down');
+    // Update watched pairs
+    WATCHED.forEach(sym => {
+      const t = tickers.find(x => x.symbol === sym);
+      if (!t) return;
+      const price = parseFloat(t.mark_price || t.close || 0);
+      const open = parseFloat(t.open || 0);
+      const pct = open ? ((price - open) / open * 100) : 0;
+      const priceEl = document.getElementById('px-' + sym);
+      const changeEl = document.getElementById('ch-' + sym);
+      if (priceEl) priceEl.textContent = formatPrice(price);
+      if (changeEl) {
+        changeEl.textContent = (pct >= 0 ? '▲ +' : '▼ ') + pct.toFixed(2) + '%';
+        changeEl.className = 'pc-change ' + (pct >= 0 ? 'up' : 'dn');
       }
-      html += renderTicker(p.label, price, chgPct, vol, up);
     });
-    list.innerHTML = html || '<div class="empty-state">No data returned from Delta Exchange API</div>';
-    document.getElementById('last-update').textContent = 'Updated: ' + new Date().toLocaleTimeString();
+
+    // Build gainers/losers from all perps
+    const perps = tickers.filter(t => {
+      const price = parseFloat(t.mark_price || t.close || 0);
+      const open = parseFloat(t.open || 0);
+      return price > 0 && open > 0 && t.symbol && !t.symbol.includes('C-') && !t.symbol.includes('P-');
+    }).map(t => {
+      const price = parseFloat(t.mark_price || t.close || 0);
+      const open = parseFloat(t.open || 0);
+      const pct = (price - open) / open * 100;
+      return { symbol: t.symbol, price, pct };
+    });
+
+    perps.sort((a, b) => b.pct - a.pct);
+
+    const gainers = perps.slice(0, 10);
+    const losers = [...perps].sort((a,b) => a.pct - b.pct).slice(0, 10);
+
+    renderGLTable('gainers-body', gainers, true);
+    renderGLTable('losers-body', losers, false);
+
+    // Quick market tip
+    if (gainers.length > 0) {
+      const topGainer = gainers[0];
+      const topLoser = losers[0];
+      document.getElementById('quick-tip').className = 'ai-box';
+      document.getElementById('quick-tip').innerHTML =
+        `📈 <strong>${topGainer.symbol}</strong> leads gains at <strong>+${topGainer.pct.toFixed(2)}%</strong> today. ` +
+        `📉 <strong>${topLoser.symbol}</strong> is the biggest loser at <strong>${topLoser.pct.toFixed(2)}%</strong>. ` +
+        `Scroll the gainers/losers for full market breadth. Use the CPR Calc tab to set your levels before trading any mover.`;
+    }
+
+    document.getElementById('lastUpdate').textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
   } catch(e) {
-    document.getElementById('last-update').textContent = 'Error fetching — Delta API may be down';
-    document.getElementById('ticker-list').innerHTML = '<div class="empty-state">⚠️ Could not reach Delta Exchange API.<br>Check your internet or try again.</div>';
+    document.getElementById('lastUpdate').textContent = 'API error — retrying';
+    document.getElementById('gainers-body').innerHTML = '<tr class="loading-row"><td colspan="4">Could not load — check connection</td></tr>';
+    document.getElementById('losers-body').innerHTML = '<tr class="loading-row"><td colspan="4">Could not load — check connection</td></tr>';
   }
 }
 
-function renderTicker(label, price, chgPct, vol, up){
-  const priceStr = typeof price === 'number' ? (price < 1 ? price.toFixed(4) : price < 100 ? price.toFixed(2) : price.toLocaleString(undefined,{maximumFractionDigits:0})) : price;
-  const chgStr = typeof chgPct === 'string' && chgPct !== '—' ? (parseFloat(chgPct)>=0?'+':'')+chgPct+'%' : '—';
-  const cls = up ? 'up' : 'down';
-  return `<div class="ticker-row">
-    <span class="ticker-pair">${label}</span>
-    <span class="ticker-price ${cls}" style="color:var(--${up?'green':'red'})">${priceStr}</span>
-    <span class="ticker-chg ${cls}">${chgStr}</span>
-    <span class="ticker-vol">Vol: ${vol}</span>
-  </div>`;
+function renderGLTable(bodyId, items, isGainer) {
+  const body = document.getElementById(bodyId);
+  if (!items.length) { body.innerHTML = '<tr class="loading-row"><td colspan="4">No data</td></tr>'; return; }
+  body.innerHTML = items.map((item, i) => `
+    <tr>
+      <td class="rank">${i+1}</td>
+      <td>${item.symbol.replace('USDT','<span style="color:var(--text3)">/USDT</span>')}</td>
+      <td>${formatPrice(item.price)}</td>
+      <td class="${isGainer ? 'change-up' : 'change-dn'}">${isGainer ? '+' : ''}${item.pct.toFixed(2)}%</td>
+    </tr>
+  `).join('');
 }
 
-function refreshPrices(){ fetchPrices(); }
-setInterval(fetchPrices, 30000);
-fetchPrices();
-
-// ── CPR CALCULATOR ──
-function calcCPR(){
-  const h = parseFloat(document.getElementById('cpr-h').value);
-  const l = parseFloat(document.getElementById('cpr-l').value);
-  const c = parseFloat(document.getElementById('cpr-c').value);
-  const ph = parseFloat(document.getElementById('cpr-ph').value);
-  const pl = parseFloat(document.getElementById('cpr-pl').value);
-  const pair = document.getElementById('cpr-pair').value || 'PAIR';
-
-  if(!h||!l||!c){ alert('Please enter High, Low, and Close'); return; }
-
-  const P  = (h + l + c) / 3;
-  const TC = (h + l) / 2;
-  const BC = (2 * P) - TC;
-  const R1 = (2 * P) - l;
-  const R2 = P + (h - l);
-  const R3 = h + 2 * (P - l);
-  const R4 = R3 + (R2 - R1);
-  const S1 = (2 * P) - h;
-  const S2 = P - (h - l);
-  const S3 = l - 2 * (h - P);
-  const S4 = S3 - (S1 - S2);
-
-  const f = n => n.toFixed(3);
-  const cprWidth = Math.abs(TC - BC);
-  const isNarrow = cprWidth < (P * 0.005);
-
-  let bias = 'neutral';
-  let biasText = 'Neutral';
-  if(TC < (ph&&pl?(ph+pl)/2:P) && BC < (ph&&pl?(ph+pl)/2:P)){ bias='bearish'; biasText='Bearish'; }
-  else if(TC > (ph&&pl?(ph+pl)/2:P) && BC > (ph&&pl?(ph+pl)/2:P)){ bias='bullish'; biasText='Bullish'; }
-
-  const biasTag = document.getElementById('bias-tag');
-  biasTag.textContent = biasText;
-  biasTag.className = 'bias ' + bias;
-  biasTag.style.display = 'inline-flex';
-
-  document.getElementById('cpr-output').innerHTML = `
-    <div class="levels-grid">
-      <div class="level-box resistance"><div class="level-name">R4</div><div class="level-val">${f(R4)}</div></div>
-      <div class="level-box resistance"><div class="level-name">R3</div><div class="level-val">${f(R3)}</div></div>
-      <div class="level-box resistance"><div class="level-name">R2</div><div class="level-val">${f(R2)}</div></div>
-      <div class="level-box resistance"><div class="level-name">R1</div><div class="level-val">${f(R1)}</div></div>
-      <div class="level-box pdhl"><div class="level-name">PDH</div><div class="level-val">${h.toFixed(3)}</div></div>
-      <div class="level-box cpr"><div class="level-name">TC (CPR)</div><div class="level-val">${f(TC)}</div></div>
-      <div class="level-box cpr"><div class="level-name">Pivot</div><div class="level-val">${f(P)}</div></div>
-      <div class="level-box cpr"><div class="level-name">BC (CPR)</div><div class="level-val">${f(BC)}</div></div>
-      <div class="level-box pdhl"><div class="level-name">PDL</div><div class="level-val">${l.toFixed(3)}</div></div>
-      <div class="level-box support"><div class="level-name">S1</div><div class="level-val">${f(S1)}</div></div>
-      <div class="level-box support"><div class="level-name">S2</div><div class="level-val">${f(S2)}</div></div>
-      <div class="level-box support"><div class="level-name">S3</div><div class="level-val">${f(S3)}</div></div>
-      <div class="level-box support"><div class="level-name">S4</div><div class="level-val">${f(S4)}</div></div>
-    </div>`;
-
-  const analysisCard = document.getElementById('cpr-analysis');
-  analysisCard.style.display = 'block';
-  document.getElementById('cpr-analysis-text').innerHTML = `
-    <strong style="color:var(--accent)">${pair}</strong> — CPR width: <strong style="color:var(--accent)">${cprWidth.toFixed(4)}</strong> → 
-    <strong style="color:${isNarrow?'var(--green)':'var(--amber)'}"> ${isNarrow ? '✅ Narrow CPR — Trending day expected' : '⚠️ Wide CPR — Sideways/Reversal day expected'}</strong><br><br>
-    ${bias==='bearish' ? `🔴 <strong style="color:var(--red)">Bearish bias:</strong> CPR is positioned below previous pivot structure. Watch for breakdown below BC (${f(BC)}) for short entries targeting S1 (${f(S1)}) → S2 (${f(S2)}).` :
-      bias==='bullish' ? `🟢 <strong style="color:var(--green)">Bullish bias:</strong> CPR is positioned above previous pivot structure. Watch for breakout above TC (${f(TC)}) for long entries targeting R1 (${f(R1)}) → R2 (${f(R2)}).` :
-      `⚪ <strong>Neutral bias:</strong> Wait for price to show clear direction. Trade breakouts of TC (${f(TC)}) or BC (${f(BC)}) with retest confirmation.`}
-    <br><br>
-    <strong style="color:var(--muted)">Key levels to watch:</strong> TC: ${f(TC)} | BC: ${f(BC)} | R1: ${f(R1)} | S1: ${f(S1)} | PDH: ${h.toFixed(3)} | PDL: ${l.toFixed(3)}`;
+function formatPrice(p) {
+  if (p >= 10000) return p.toLocaleString('en-IN', {maximumFractionDigits: 2});
+  if (p >= 100) return p.toFixed(2);
+  if (p >= 1) return p.toFixed(4);
+  return p.toFixed(6);
 }
 
-// ── CHECKLIST ──
-function toggleCheck(label){
-  const cb = label.querySelector('input[type=checkbox]');
-  label.classList.toggle('checked', cb.checked);
-  updateScore();
-}
-function updateScore(){
-  const total = document.querySelectorAll('#checklist input:checked').length;
-  document.getElementById('score-val').textContent = total;
-  document.getElementById('progress').style.width = (total/6*100)+'%';
-}
-function resetChecklist(){
-  document.querySelectorAll('#checklist input').forEach(c=>{c.checked=false});
-  document.querySelectorAll('#checklist .check-item').forEach(l=>l.classList.remove('checked'));
-  updateScore();
-}
-function checkResult(){
-  const score = parseInt(document.getElementById('score-val').textContent);
-  if(score >= 5) alert('✅ Score '+score+'/6 — Setup looks good. Proceed with disciplined entry.');
-  else if(score >= 3) alert('⚠️ Score '+score+'/6 — Setup is weak. Consider waiting for better confirmation.');
-  else alert('🚫 Score '+score+'/6 — Do NOT take this trade. Too many conditions missing.');
-}
-function saveToJournal(){
-  const pair = document.getElementById('note-pair').value;
-  const dir = document.getElementById('note-dir').value;
-  const entry = document.getElementById('note-entry').value;
-  const sl = document.getElementById('note-sl').value;
-  const target = document.getElementById('note-target').value;
-  const reason = document.getElementById('note-reason').value;
-  const score = document.getElementById('score-val').textContent;
-  if(!pair){ alert('Please enter a pair name'); return; }
-  const trade = {
-    id: Date.now(),
-    date: new Date().toISOString().split('T')[0],
-    pair, dir,
-    entry: entry || '—', sl: sl || '—',
-    t1: target || '—', t2: '', exit: null, qty: 1,
-    rr: '—', pnl: 0, result: 'Open',
-    checks: parseInt(score)||0,
-    notes: reason || 'From checklist'
-  };
-  let trades = [];
-  try{ trades = JSON.parse(localStorage.getItem('cprtrader_trades')||'[]'); }catch(e){}
-  trades.unshift(trade);
-  try{ localStorage.setItem('cprtrader_trades', JSON.stringify(trades)); }catch(e){}
-  showPage('journal');
-  document.querySelector('.nav-tab:nth-child(4)').classList.add('active');
-  document.querySelectorAll('.nav-tab').forEach((t,i)=>{ if(i!==3) t.classList.remove('active'); });
-  alert('Trade saved to journal!');
-}
+// ═══════════════════════════════════════════
+// CPR CALCULATOR
+// ═══════════════════════════════════════════
+function calcCPR() {
+  const H = parseFloat(document.getElementById('calc-high').value);
+  const L = parseFloat(document.getElementById('calc-low').value);
+  const C = parseFloat(document.getElementById('calc-close').value);
+  const PDH = parseFloat(document.getElementById('calc-pdh').value) || null;
+  const PDL = parseFloat(document.getElementById('calc-pdl').value) || null;
 
-// ── JOURNAL ──
-let trades = [];
-try{ trades = JSON.parse(localStorage.getItem('cprtrader_trades')||'[]'); }catch(e){}
+  if (!H || !L || !C || H <= L) { alert('Please enter valid High, Low, Close values.'); return; }
 
-function openModal(){
-  document.getElementById('m-date').value = new Date().toISOString().split('T')[0];
-  document.getElementById('modal').classList.add('open');
-}
-function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+  const pivot = (H + L + C) / 3;
+  const bc = (H + L) / 2;
+  const tc = (pivot - bc) + pivot;
+  const r1 = 2 * pivot - L;
+  const r2 = pivot + (H - L);
+  const s1 = 2 * pivot - H;
+  const s2 = pivot - (H - L);
+  const width = Math.abs(tc - bc);
+  const widthPct = (width / pivot * 100);
+  const isNarrow = widthPct < 0.5;
 
-function addTrade(){
-  const entry = parseFloat(document.getElementById('m-entry').value);
-  const sl = parseFloat(document.getElementById('m-sl').value);
-  const exit = parseFloat(document.getElementById('m-exit').value)||null;
-  const qty = parseFloat(document.getElementById('m-qty').value)||1;
-  const dir = document.getElementById('m-dir').value;
-  if(!entry||!sl){ alert('Please enter Entry and SL'); return; }
-  const risk = Math.abs(entry-sl);
-  let rr='—', pnl=0, result='Open';
-  if(exit && risk>0){
-    const reward = dir==='LONG'?(exit-entry):(entry-exit);
-    rr = (reward/risk).toFixed(2);
-    pnl = reward*qty;
-    result = pnl>=0?'Win':'Loss';
+  calcLevels = { pivot, bc, tc, r1, r2, s1, s2, PDH, PDL, H, L, C, widthPct, isNarrow };
+
+  const dp = H > 10000 ? 0 : H > 100 ? 2 : 4;
+  const fmt = v => v ? v.toFixed(dp) : '—';
+
+  document.getElementById('res-pivot').textContent = fmt(pivot);
+  document.getElementById('res-tc').textContent = fmt(tc);
+  document.getElementById('res-bc').textContent = fmt(bc);
+  document.getElementById('res-r1').textContent = fmt(r1);
+  document.getElementById('res-r2').textContent = fmt(r2);
+  document.getElementById('res-s1').textContent = fmt(s1);
+  document.getElementById('res-s2').textContent = fmt(s2);
+  document.getElementById('res-pdh').textContent = PDH ? fmt(PDH) : '—';
+  document.getElementById('res-pdl').textContent = PDL ? fmt(PDL) : '—';
+
+  // Bias from close vs pivot
+  const biasBox = document.getElementById('bias-display');
+  if (C > pivot && C > bc) {
+    biasBox.className = 'bias-box bullish';
+    biasBox.innerHTML = `<div class="bias-icon">🟢</div><div class="bias-text"><strong>Bullish Bias</strong><span>Close above Pivot & BC — look for LONG setups near TC or on pullback to BC</span></div>`;
+  } else if (C < pivot && C < bc) {
+    biasBox.className = 'bias-box bearish';
+    biasBox.innerHTML = `<div class="bias-icon">🔴</div><div class="bias-text"><strong>Bearish Bias</strong><span>Close below Pivot & BC — look for SHORT setups. Wait for body close below BC for confirmation</span></div>`;
+  } else {
+    biasBox.className = 'bias-box neutral';
+    biasBox.innerHTML = `<div class="bias-icon">⚖️</div><div class="bias-text"><strong>Neutral / Wait</strong><span>Price inside CPR range — avoid fighting the range. Wait for a decisive breakout</span></div>`;
   }
-  const t = {
-    id: Date.now(),
-    date: document.getElementById('m-date').value,
-    pair: document.getElementById('m-pair').value||'—',
-    dir, entry, sl,
-    t1: parseFloat(document.getElementById('m-t1').value)||null,
-    t2: parseFloat(document.getElementById('m-t2').value)||null,
-    exit, qty, rr, pnl, result,
-    checks: parseInt(document.getElementById('m-checks').value)||6,
-    notes: document.getElementById('m-notes').value||''
-  };
-  trades.unshift(t);
-  try{ localStorage.setItem('cprtrader_trades', JSON.stringify(trades)); }catch(e){}
-  closeModal();
+
+  document.getElementById('cpr-width-tag').innerHTML =
+    isNarrow
+      ? `<span class="tag-narrow">🎯 Narrow CPR (${widthPct.toFixed(3)}%) — Trending day likely. Trade the breakout direction.</span>`
+      : `<span class="tag-wide">↔️ Wide CPR (${widthPct.toFixed(2)}%) — Choppy/Reversal day. Be selective, fade extremes.</span>`;
+
+  document.getElementById('calc-result').style.display = 'block';
+}
+
+// ═══════════════════════════════════════════
+// AI ANALYSIS (Anthropic API)
+// ═══════════════════════════════════════════
+async function getAIAnalysis() {
+  const cmp = document.getElementById('ai-cmp').value;
+  const obs = document.getElementById('ai-obs').value;
+  if (!obs.trim()) { alert('Describe your observation first.'); return; }
+
+  const levels = calcLevels;
+  const ctx = levels
+    ? `CPR Levels calculated: TC=${levels.tc.toFixed(2)}, Pivot=${levels.pivot.toFixed(2)}, BC=${levels.bc.toFixed(2)}, R1=${levels.r1.toFixed(2)}, R2=${levels.r2.toFixed(2)}, S1=${levels.s1.toFixed(2)}, S2=${levels.s2.toFixed(2)}, PDH=${levels.PDH||'not set'}, PDL=${levels.PDL||'not set'}, CPR Width=${levels.widthPct.toFixed(3)}% (${levels.isNarrow?'Narrow':'Wide'}). CMP=${cmp||'not provided'}.`
+    : `CMP=${cmp||'not provided'}. No CPR levels calculated yet — trader's observation only.`;
+
+  const resultEl = document.getElementById('ai-result');
+  resultEl.style.display = 'block';
+  resultEl.innerHTML = 'Analysing… <span class="ai-typing"></span>';
+
+  const prompt = `You are a professional intraday crypto trader using CPR (Central Pivot Range), S/R levels, and PDH/PDL on 5m and 15m timeframes. Trading on Delta Exchange India.
+
+${ctx}
+
+Trader's observation: "${obs}"
+
+Give a concise trade analysis (5-8 lines max):
+1. Is this a valid setup based on CPR methodology?
+2. Key confirmation needed before entry (focus on 5m body close beyond BC/TC)
+3. Ideal entry, SL, and target zones based on the levels
+4. Risk warning if setup has weaknesses
+
+Be direct. Use technical language. No fluff.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.find(c => c.type === 'text')?.text || 'No response';
+    resultEl.innerHTML = text.replace(/\n/g, '<br>');
+  } catch(e) {
+    resultEl.innerHTML = 'AI unavailable. Check your internet connection.';
+  }
+}
+
+async function getChecklistAI() {
+  const score = checkScore;
+  const pair = document.getElementById('setup-pair').value;
+  const dir = document.getElementById('setup-dir').value;
+  const entry = document.getElementById('setup-entry').value;
+  const sl = document.getElementById('setup-sl').value;
+  const t1 = document.getElementById('setup-t1').value;
+  const t2 = document.getElementById('setup-t2').value;
+  const why = document.getElementById('setup-why').value;
+
+  const aiEl = document.getElementById('checklist-ai');
+  aiEl.style.display = 'block';
+  aiEl.innerHTML = 'Reviewing setup… <span class="ai-typing"></span>';
+
+  const rr = (entry && sl && t1)
+    ? Math.abs(parseFloat(t1) - parseFloat(entry)) / Math.abs(parseFloat(entry) - parseFloat(sl))
+    : null;
+
+  const prompt = `You are a strict CPR-based intraday trading mentor. Review this trade setup:
+
+Pair: ${pair} | Direction: ${dir}
+Entry: ${entry||'not set'} | SL: ${sl||'not set'} | T1: ${t1||'not set'} | T2: ${t2||'not set'}
+R:R ratio: ${rr ? rr.toFixed(2)+'R' : 'not calculable'}
+Checklist score: ${score}/6
+Trader's reasoning: ${why||'not provided'}
+
+Pre-trade checklist result: ${score >= 5 ? '✅ PASS' : '❌ FAIL — ' + (6-score) + ' criteria missing'}
+
+Assess in 4-5 lines:
+1. Is this trade worth taking? (score + R:R + reasoning)
+2. Key risk in this setup
+3. One improvement or what to wait for
+Be blunt. If score < 5, tell them to NOT take this trade.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.find(c => c.type === 'text')?.text || 'No response';
+    aiEl.innerHTML = text.replace(/\n/g, '<br>');
+  } catch(e) {
+    aiEl.innerHTML = 'AI unavailable.';
+  }
+}
+
+// ═══════════════════════════════════════════
+// CHECKLIST
+// ═══════════════════════════════════════════
+function toggleCheck(el, idx) {
+  el.classList.toggle('checked');
+  checkScore = document.querySelectorAll('.check-item.checked').length;
+  const pct = checkScore / 6 * 100;
+  const pass = checkScore >= 5;
+  document.getElementById('score-num').textContent = checkScore + ' / 6';
+  document.getElementById('score-num').className = 'score-num ' + (pass ? 'pass' : 'fail');
+  document.getElementById('score-label').textContent = pass ? '✅ Ready to trade' : 'Need minimum 5/6 to trade';
+  const bar = document.getElementById('score-bar');
+  bar.style.width = pct + '%';
+  bar.className = 'progress-fill ' + (pass ? '' : 'fail');
+}
+
+function resetChecklist() {
+  document.querySelectorAll('.check-item').forEach(el => el.classList.remove('checked'));
+  checkScore = 0;
+  document.getElementById('score-num').textContent = '0 / 6';
+  document.getElementById('score-num').className = 'score-num fail';
+  document.getElementById('score-label').textContent = 'Need minimum 5/6 to trade';
+  document.getElementById('score-bar').style.width = '0%';
+  document.getElementById('score-bar').className = 'progress-fill fail';
+}
+
+// ═══════════════════════════════════════════
+// JOURNAL
+// ═══════════════════════════════════════════
+function openTradeModal() {
+  const d = new Date();
+  document.getElementById('t-date').value = d.toLocaleDateString('en-IN');
+  document.getElementById('trade-modal').classList.add('open');
+}
+
+function closeTradeModal() {
+  document.getElementById('trade-modal').classList.remove('open');
+}
+
+function saveTrade() {
+  const entry = parseFloat(document.getElementById('t-entry').value);
+  const sl = parseFloat(document.getElementById('t-sl').value);
+  const exit = parseFloat(document.getElementById('t-exit').value);
+  const qty = parseFloat(document.getElementById('t-qty').value) || 1;
+  const dir = document.getElementById('t-dir').value;
+
+  if (!entry || !sl || !exit) { alert('Please fill entry, SL and exit.'); return; }
+
+  const slDist = Math.abs(entry - sl);
+  const pnlPerUnit = dir === 'LONG' ? (exit - entry) : (entry - exit);
+  const pnl = pnlPerUnit * qty;
+  const rr = slDist > 0 ? Math.abs(pnlPerUnit) / slDist : 0;
+  const result = pnl >= 0 ? 'WIN' : 'LOSS';
+
+  trades.unshift({
+    date: document.getElementById('t-date').value,
+    pair: document.getElementById('t-pair').value,
+    dir, entry, sl, exit, qty, pnl: parseFloat(pnl.toFixed(2)), rr: parseFloat(rr.toFixed(2)),
+    score: document.getElementById('t-score').value,
+    notes: document.getElementById('t-notes').value,
+    result
+  });
+
+  localStorage.setItem('cpr_trades', JSON.stringify(trades));
+  renderJournal();
+  closeTradeModal();
+
+  // Clear fields
+  ['t-entry','t-sl','t-exit','t-qty','t-notes'].forEach(id => document.getElementById(id).value = '');
+}
+
+function deleteTrade(idx) {
+  if (!confirm('Delete this trade?')) return;
+  trades.splice(idx, 1);
+  localStorage.setItem('cpr_trades', JSON.stringify(trades));
   renderJournal();
 }
 
-function deleteTrade(id){
-  if(!confirm('Delete this trade?')) return;
-  trades = trades.filter(t=>t.id!==id);
-  try{ localStorage.setItem('cprtrader_trades', JSON.stringify(trades)); }catch(e){}
-  renderJournal();
-}
+function renderJournal() {
+  const body = document.getElementById('journal-body');
+  if (!trades.length) {
+    body.innerHTML = '<tr><td colspan="13"><div class="empty-state">No trades yet. Add your first trade above.</div></td></tr>';
+    updateJournalStats();
+    return;
+  }
 
-function renderJournal(){
-  const tbody = document.getElementById('journal-body');
-  const table = document.getElementById('journal-table');
-  const empty = document.getElementById('journal-empty');
-  if(!trades.length){ table.style.display='none'; empty.style.display='block'; updateStats(); return; }
-  table.style.display='table'; empty.style.display='none';
-  tbody.innerHTML = trades.map(t=>{
-    const pnlStr = t.result==='Open'?'—':(t.pnl>=0?'+₹':'-₹')+Math.abs(t.pnl).toFixed(2);
-    const pnlColor = t.pnl>0?'color:var(--green)':t.pnl<0?'color:var(--red)':'';
-    const rb = t.result==='Win'?'win':t.result==='Loss'?'loss':'open';
-    const db = t.dir==='LONG'?'long':'short';
-    return `<tr>
+  body.innerHTML = trades.map((t, i) => `
+    <tr>
       <td>${t.date}</td>
       <td style="font-weight:600">${t.pair}</td>
-      <td><span class="badge ${db}">${t.dir}</span></td>
-      <td style="font-family:var(--mono)">${t.entry}</td>
-      <td style="font-family:var(--mono)">${t.sl}</td>
-      <td style="font-family:var(--mono)">${t.exit||'—'}</td>
-      <td style="font-family:var(--mono)">${t.rr}</td>
-      <td style="font-family:var(--mono);${pnlColor};font-weight:600">${pnlStr}</td>
-      <td>${t.checks}/6</td>
-      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;color:var(--muted)">${t.notes||'—'}</td>
-      <td><span class="badge ${rb}">${t.result}</span></td>
-      <td><button class="del-btn" onclick="deleteTrade(${t.id})">×</button></td>
-    </tr>`;
-  }).join('');
-  updateStats();
+      <td><span class="badge badge-${t.dir.toLowerCase()}">${t.dir}</span></td>
+      <td>${t.entry}</td>
+      <td>${t.sl}</td>
+      <td>${t.exit}</td>
+      <td>${t.qty}</td>
+      <td style="font-weight:600;color:${t.pnl>=0?'var(--accent)':'var(--red)'}">${t.pnl>=0?'+':''}₹${t.pnl}</td>
+      <td>${t.rr}R</td>
+      <td>${t.score}/6</td>
+      <td><span class="badge badge-${t.result.toLowerCase()}">${t.result}</span></td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;color:var(--text2)">${t.notes||'—'}</td>
+      <td><button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteTrade(${i})">✕</button></td>
+    </tr>
+  `).join('');
+
+  updateJournalStats();
 }
 
-function updateStats(){
-  const closed = trades.filter(t=>t.result!=='Open');
-  const wins = trades.filter(t=>t.result==='Win');
-  const pnl = closed.reduce((s,t)=>s+t.pnl,0);
-  const rrs = closed.map(t=>parseFloat(t.rr)).filter(n=>!isNaN(n));
-  const avgRR = rrs.length?(rrs.reduce((a,b)=>a+b,0)/rrs.length).toFixed(2):'—';
-  const wr = closed.length?Math.round(wins.length/closed.length*100)+'%':'—';
-  document.getElementById('j-total').textContent = trades.length;
-  document.getElementById('j-wr').textContent = wr;
+function updateJournalStats() {
+  const n = trades.length;
+  const wins = trades.filter(t => t.result === 'WIN').length;
+  const pnl = trades.reduce((s, t) => s + t.pnl, 0);
+  const rrs = trades.filter(t => t.rr > 0);
+  const avgRR = rrs.length ? (rrs.reduce((s,t) => s+t.rr, 0) / rrs.length) : 0;
+
+  document.getElementById('j-total').textContent = n;
+  document.getElementById('j-winrate').textContent = n ? (wins/n*100).toFixed(0)+'%' : '—';
   const pnlEl = document.getElementById('j-pnl');
-  pnlEl.textContent = (pnl>=0?'+₹':'-₹')+Math.abs(pnl).toFixed(2);
-  pnlEl.className = 'stat-value '+(pnl>=0?'up':'down');
-  document.getElementById('j-rr').textContent = avgRR;
+  pnlEl.textContent = (pnl>=0?'₹':'-₹') + Math.abs(pnl).toFixed(0);
+  pnlEl.className = 'stat-val ' + (pnl<0?'neg':'');
+  document.getElementById('j-rr').textContent = avgRR ? avgRR.toFixed(2)+'R' : '—';
 }
 
+function saveToJournal() {
+  switchPage('journal');
+  setTimeout(openTradeModal, 100);
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
 renderJournal();
+fetchMarket();
+setInterval(fetchMarket, 30000);
 </script>
 </body>
 </html>
