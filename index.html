@@ -539,7 +539,7 @@
         </div>
         <table class="gl-table">
           <thead>
-            <tr><th>#</th><th>Symbol</th><th>Price</th><th>24h %</th></tr>
+            <tr><th>#</th><th>Symbol</th><th>Price</th><th>Session %</th></tr>
           </thead>
           <tbody id="gainers-body">
             <tr class="loading-row"><td colspan="4">Loading market data…</td></tr>
@@ -553,7 +553,7 @@
         </div>
         <table class="gl-table">
           <thead>
-            <tr><th>#</th><th>Symbol</th><th>Price</th><th>24h %</th></tr>
+            <tr><th>#</th><th>Symbol</th><th>Price</th><th>Session %</th></tr>
           </thead>
           <tbody id="losers-body">
             <tr class="loading-row"><td colspan="4">Loading market data…</td></tr>
@@ -942,11 +942,14 @@ async function fetchMarket() {
       const price = parseFloat(t.mark_price || t.close || 0);
       // Snapshot at session open (5:30 AM IST) on first fetch of the day
       if (pastSessionStart && !baseline[t.symbol]) {
-        baseline[t.symbol] = price;
+        // t.open from Delta resets at midnight UTC = 5:30 AM IST
+        // Use it as baseline if valid, otherwise use current price (avoids 0-baseline bug)
+        const apiOpen = parseFloat(t.open || 0);
+        baseline[t.symbol] = apiOpen > 0 ? apiOpen : price;
       }
-      const sessionOpen = (pastSessionStart && baseline[t.symbol]) ? baseline[t.symbol] : parseFloat(t.open || price);
+      const sessionOpen = (pastSessionStart && baseline[t.symbol]) ? baseline[t.symbol] : (parseFloat(t.open || 0) > 0 ? parseFloat(t.open) : price);
       const pct = sessionOpen > 0 ? (price - sessionOpen) / sessionOpen * 100 : 0;
-      return { symbol: t.symbol, price, pct };
+      return { symbol: t.symbol, price, pct, sessionOpen };
     });
 
     if (pastSessionStart) {
@@ -1000,7 +1003,7 @@ function renderGLTable(bodyId, items, isGainer, sessionLabel) {
       <td class="rank">${i+1}</td>
       <td><a href="${tvUrl}" target="_blank" rel="noopener" style="color:var(--text1);text-decoration:none;font-weight:600;border-bottom:1px dashed var(--text3);" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text1)'">${displaySymbol}</a></td>
       <td>${formatPrice(item.price)}</td>
-      <td class="${isGainer ? 'change-up' : 'change-dn'}">${isGainer ? '+' : ''}${item.pct.toFixed(2)}%</td>
+      <td class="${isGainer ? 'change-up' : 'change-dn'}" title="5:30 AM baseline: ${formatPrice(item.sessionOpen)}">${isGainer ? '+' : ''}${item.pct.toFixed(2)}%</td>
     </tr>
   `;
   }).join("");
